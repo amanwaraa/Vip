@@ -1,0 +1,2614 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZERO SHOP - Admin 2</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+
+    *{box-sizing:border-box}
+    body{
+      font-family:'Cairo',sans-serif;
+      background:#f8f9fa;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent
+    }
+
+    .view-section{display:none;min-height:100vh}
+    .view-section.active{display:block}
+
+    .loader{
+      border:4px solid #f3f3f3;
+      border-top:4px solid #ef4444;
+      border-radius:50%;
+      width:46px;height:46px;
+      animation:spin .8s linear infinite
+    }
+    @keyframes spin{
+      0%{transform:rotate(0)}
+      100%{transform:rotate(360deg)}
+    }
+
+    .toast-notification{animation:slideUp .3s ease-out forwards}
+    @keyframes slideUp{
+      from{transform:translate(-50%,100%);opacity:0}
+      to{transform:translate(-50%,0);opacity:1}
+    }
+
+    .modal-overlay{
+      background:rgba(0,0,0,.5);
+      backdrop-filter:blur(4px)
+    }
+
+    .info-card{
+      border:1px solid #eee;
+      border-radius:2rem!important;
+      background:#fff;
+      overflow:hidden
+    }
+
+    .admin-section{animation:fadeIn .18s ease}
+    @keyframes fadeIn{
+      from{opacity:0;transform:translateY(4px)}
+      to{transform:translateY(0);opacity:1}
+    }
+
+    .country-icon{
+      width:22px;
+      height:22px;
+      object-fit:cover;
+      border-radius:999px;
+      background:#fff;
+      box-shadow:0 0 0 1px #e5e7eb inset
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+      gap:8px
+    }
+
+    .small-scroll{
+      max-height:220px;
+      overflow:auto
+    }
+    .small-scroll::-webkit-scrollbar{width:6px}
+    .small-scroll::-webkit-scrollbar-thumb{background:#ddd;border-radius:20px}
+
+    .ad-card{
+      background:#fff;
+      border:1px solid #eee;
+      border-radius:2rem;
+      overflow:hidden;
+      position:relative;
+      box-shadow:0 1px 3px rgba(0,0,0,.05)
+    }
+    .ad-card.ad-no-border{
+      border:none!important;
+      box-shadow:none!important;
+      background:transparent!important
+    }
+    .ad-badge{
+      position:absolute;
+      top:10px;
+      left:10px;
+      z-index:8;
+      background:#111827;
+      color:#fff;
+      font-size:10px;
+      font-weight:800;
+      padding:5px 10px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      gap:5px
+    }
+
+    .ad-render-wrap{
+      width:100%;
+      min-height:170px;
+      background:#fff;
+      position:relative
+    }
+    .ad-render-wrap iframe{
+      width:100%;
+      border:none;
+      display:block;
+      min-height:170px;
+      background:#fff
+    }
+
+    .ad-slider-track,.ad-products-track{
+      display:flex;
+      overflow-x:auto;
+      scroll-snap-type:x mandatory;
+      scroll-behavior:smooth;
+      gap:12px;
+      padding:12px
+    }
+    .ad-slider-track::-webkit-scrollbar,
+    .ad-products-track::-webkit-scrollbar{display:none}
+
+    .ad-slide{
+      min-width:100%;
+      scroll-snap-align:start;
+      position:relative;
+      border-radius:1.5rem;
+      overflow:hidden;
+      background:#f8fafc
+    }
+    .ad-slide img{
+      width:100%;
+      display:block;
+      object-fit:cover;
+      max-height:420px
+    }
+
+    .ad-products-track .ad-product-item{
+      min-width:180px;
+      max-width:180px;
+      scroll-snap-align:start;
+      flex:0 0 180px
+    }
+
+    .ad-nav-btn{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      width:36px;
+      height:36px;
+      border-radius:999px;
+      background:rgba(17,24,39,.82);
+      color:#fff;
+      z-index:7;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:none;
+      cursor:pointer
+    }
+    .ad-nav-btn.prev{right:10px}
+    .ad-nav-btn.next{left:10px}
+
+    .ad-dots{
+      display:flex;
+      justify-content:center;
+      gap:6px;
+      padding:0 12px 12px
+    }
+    .ad-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:#d1d5db;
+      transition:.2s;
+      border:none
+    }
+    .ad-dot.active{
+      width:20px;
+      background:#111827
+    }
+
+    .middle-render-frame{
+      width:100%;
+      min-height:180px;
+      border:none;
+      background:#fff;
+      display:block
+    }
+
+    .thumb{
+      width:76px;
+      height:76px;
+      object-fit:cover;
+      border-radius:1rem;
+      border:1px solid #e5e7eb;
+      background:#fff
+    }
+
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800
+    }
+
+    input,button,select,.rounded-xl,.rounded-2xl,.rounded-3xl{
+      border-radius:2rem!important
+    }
+    textarea{border-radius:1.5rem!important}
+    code{direction:ltr;unicode-bidi:bidi-override}
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+</head>
+<body class="bg-gray-50">
+
+  <div id="loadingOverlay" class="fixed inset-0 bg-white/85 backdrop-blur-sm z-[9999] flex items-center justify-center">
+    <div class="flex flex-col items-center">
+      <div class="loader mb-3"></div>
+      <p class="text-red-500 font-bold">جاري التحميل...</p>
+    </div>
+  </div>
+
+  <div id="adminLoginModal" class="fixed inset-0 z-[10000] modal-overlay hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-lg">دخول الموظفين فقط</h3>
+        <button onclick="window.location.href='index.html'" class="w-9 h-9 bg-gray-100 rounded-full"><i class="fas fa-arrow-right"></i></button>
+      </div>
+
+      <div class="bg-gray-50 text-gray-500 px-4 py-3 rounded-[1.5rem] text-sm font-bold mb-4">
+        يجب إدخال البريد وكلمة المرور للدخول.
+      </div>
+
+      <div class="mb-3">
+        <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">البريد</label>
+        <input id="adminEmailInput" type="email" placeholder="أدخل البريد"
+               class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold">
+      </div>
+
+      <div class="mb-4">
+        <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">كلمة المرور</label>
+        <input id="adminPinInput" type="password" inputmode="numeric" placeholder="****"
+               class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold tracking-widest">
+      </div>
+
+      <button onclick="adminLogin()" class="w-full py-3 bg-red-500 text-white font-bold shadow-lg active:scale-95 transition-transform">دخول</button>
+    </div>
+  </div>
+
+  <div id="adminChangePinModal" class="fixed inset-0 z-[10000] modal-overlay hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-lg">تغيير كلمة المرور</h3>
+        <button onclick="closeChangePinModal()" class="w-9 h-9 bg-gray-100 rounded-full"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="bg-red-50 text-red-600 px-4 py-3 rounded-[2rem] text-sm font-bold mb-4">
+        <i class="fas fa-shield-halved ml-1"></i> مطلوب تغيير كلمة المرور
+      </div>
+      <input id="newPin1" type="password" inputmode="numeric" placeholder="كلمة مرور جديدة (4 أرقام أو أكثر)"
+             class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-3">
+      <input id="newPin2" type="password" inputmode="numeric" placeholder="تأكيد كلمة المرور"
+             class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-4">
+      <button onclick="changeAdminPin()" class="w-full py-3 bg-gray-900 text-white font-bold shadow-lg active:scale-95 transition-transform">
+        حفظ كلمة المرور الجديدة
+      </button>
+    </div>
+  </div>
+
+  <div id="categoryEditorModal" class="fixed inset-0 z-[10000] modal-overlay hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="categoryEditorTitle" class="font-bold text-lg">إضافة/تعديل صنف</h3>
+        <button onclick="closeCategoryEditor()" class="w-9 h-9 bg-gray-100 rounded-full"><i class="fas fa-xmark"></i></button>
+      </div>
+
+      <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">categoryId (فريد)</label>
+      <input id="ce_id" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-3" placeholder="مثال: pubg" />
+
+      <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">اسم الصنف</label>
+      <input id="ce_name" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-3" placeholder="مثال: PUBG UC" />
+
+      <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">الترتيب (رقم)</label>
+      <input id="ce_order" type="number" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-3" value="0" />
+
+      <div class="flex items-center gap-3 mb-4">
+        <input id="ce_enabled" type="checkbox" class="w-5 h-5 accent-red-500" checked>
+        <label for="ce_enabled" class="text-sm font-bold text-gray-700">مفعل/ظاهر</label>
+      </div>
+
+      <div class="flex gap-3">
+        <button onclick="saveCategoryFromEditor()" class="flex-1 py-3 bg-red-500 text-white font-bold">حفظ</button>
+        <button onclick="closeCategoryEditor()" class="flex-1 py-3 bg-gray-100 font-bold">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="countryEditorModal" class="fixed inset-0 z-[10000] modal-overlay hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] p-6 w-full max-w-md">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="countryEditorTitle" class="font-bold text-lg">إضافة/تعديل دولة</h3>
+        <button onclick="closeCountryEditor()" class="w-9 h-9 bg-gray-100 rounded-full"><i class="fas fa-xmark"></i></button>
+      </div>
+
+      <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">رمز الدولة</label>
+      <input id="coe_code" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-3" placeholder="مثال: PS">
+
+      <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">اسم الدولة</label>
+      <input id="coe_name" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-3" placeholder="مثال: فلسطين">
+
+      <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">رابط العلم</label>
+      <input id="coe_flagUrl" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-3" placeholder="https://...">
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">رمز العملة</label>
+          <input id="coe_currencyCode" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-3" placeholder="USD">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">رمز العرض</label>
+          <input id="coe_currencySymbol" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-3" placeholder="$">
+        </div>
+      </div>
+
+      <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">قيمة 1 عملة بالنسبة للشيكل</label>
+      <input id="coe_rateToIls" type="number" step="0.0001" min="0.0001" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-3">
+
+      <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">الترتيب</label>
+      <input id="coe_order" type="number" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold mb-3" value="0">
+
+      <div class="flex items-center gap-3 mb-4">
+        <input id="coe_enabled" type="checkbox" class="w-5 h-5 accent-red-500" checked>
+        <label for="coe_enabled" class="text-sm font-bold text-gray-700">مفعلة/ظاهرة</label>
+      </div>
+
+      <div class="flex gap-3">
+        <button onclick="saveCountryFromEditor()" class="flex-1 py-3 bg-red-500 text-white font-bold">حفظ</button>
+        <button onclick="closeCountryEditor()" class="flex-1 py-3 bg-gray-100 font-bold">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="adEditorModal" class="fixed inset-0 z-[10000] modal-overlay hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] p-6 w-full max-w-6xl max-h-[94vh] overflow-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="adEditorTitle" class="font-bold text-lg">إضافة/تعديل إعلان</h3>
+        <button onclick="closeAdEditor()" class="w-9 h-9 bg-gray-100 rounded-full"><i class="fas fa-xmark"></i></button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">اسم الإعلان</label>
+            <input id="ae_name" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">نوع العرض</label>
+            <select id="ae_type" onchange="toggleAdFields()" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+              <option value="web">HTML / CSS / JS</option>
+              <option value="json">JSON مرئي</option>
+              <option value="image">صورة واحدة</option>
+              <option value="images_slider">سلايدر صور</option>
+              <option value="product">منتج من المتجر</option>
+              <option value="products_slider">سلايدر منتجات</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">مكان الإعلان</label>
+            <select id="ae_span" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+              <option value="1">مكان منتج واحد</option>
+              <option value="2">مكان منتجين</option>
+              <option value="free">حر</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">الترتيب بين المنتجات</label>
+            <input id="ae_position" type="number" min="1" value="3" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+          </div>
+
+          <div class="bg-gray-50 border border-gray-100 rounded-[1.5rem] p-4">
+            <h4 class="font-bold mb-3">ظهور الإعلان حسب القسم</h4>
+            <div class="space-y-3">
+              <div>
+                <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">وضع الظهور</label>
+                <select id="ae_categoryMode" onchange="toggleAdCategoryModeFields()" class="w-full bg-white border border-gray-200 py-3 px-4 outline-none text-sm font-bold">
+                  <option value="all">يظهر في كل الأقسام</option>
+                  <option value="all_only">يظهر في صفحة الكل فقط</option>
+                  <option value="selected">يظهر في أقسام محددة</option>
+                </select>
+              </div>
+              <div id="aeSelectedCategoriesWrap" class="hidden">
+                <div id="ae_categoriesList" class="check-grid small-scroll bg-white border border-gray-200 p-3 rounded-[1.5rem]"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-[1.5rem] px-4 py-3 cursor-pointer">
+              <input id="ae_showBadge" type="checkbox" class="w-5 h-5 accent-red-500" checked>
+              <span class="text-sm font-bold">إظهار كلمة ممول</span>
+            </label>
+            <label class="flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-[1.5rem] px-4 py-3 cursor-pointer">
+              <input id="ae_showBorder" type="checkbox" class="w-5 h-5 accent-red-500" checked>
+              <span class="text-sm font-bold">إظهار الحد</span>
+            </label>
+          </div>
+
+          <div class="bg-gray-50 border border-gray-100 rounded-[1.5rem] p-4">
+            <h4 class="font-bold mb-3">عند الضغط على الإعلان</h4>
+            <div class="space-y-3">
+              <div>
+                <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">التحويل إلى</label>
+                <select id="ae_clickActionType" onchange="toggleAdClickActionFields()" class="w-full bg-white border border-gray-200 py-3 px-4 outline-none text-sm font-bold">
+                  <option value="none">بدون إجراء</option>
+                  <option value="link">رابط</option>
+                  <option value="category">قسم معين</option>
+                  <option value="product">منتج معين</option>
+                </select>
+              </div>
+
+              <div id="aeClickLinkWrap" class="hidden">
+                <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">الرابط</label>
+                <input id="ae_clickLink" class="w-full bg-white border border-gray-200 py-3 px-4 outline-none text-sm font-bold" placeholder="https://...">
+              </div>
+
+              <div id="aeClickCategoryWrap" class="hidden">
+                <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">القسم</label>
+                <select id="ae_clickCategoryId" class="w-full bg-white border border-gray-200 py-3 px-4 outline-none text-sm font-bold"></select>
+              </div>
+
+              <div id="aeClickProductWrap" class="hidden">
+                <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">المنتج</label>
+                <select id="ae_clickProductKey" class="w-full bg-white border border-gray-200 py-3 px-4 outline-none text-sm font-bold"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">دقائق</label>
+              <input id="ae_minutes" type="number" min="0" value="0" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">أيام</label>
+              <input id="ae_days" type="number" min="0" value="0" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">أشهر</label>
+              <input id="ae_months" type="number" min="0" value="0" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input id="ae_infinite" type="checkbox" class="w-5 h-5 accent-red-500" onchange="toggleAdDurationFields()">
+            <label for="ae_infinite" class="text-sm font-bold text-gray-700">لا نهائي</label>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input id="ae_enabled" type="checkbox" class="w-5 h-5 accent-red-500" checked>
+            <label for="ae_enabled" class="text-sm font-bold text-gray-700">مفعل</label>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div id="adWebWrap">
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">كود HTML / CSS / JS</label>
+            <textarea id="ae_code" rows="14" class="w-full bg-white border border-gray-200 py-3 px-4 outline-none text-xs font-bold" style="direction:ltr"></textarea>
+          </div>
+
+          <div id="adJsonWrap" class="hidden">
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">JSON مرئي</label>
+            <textarea id="ae_json" rows="14" class="w-full bg-white border border-gray-200 py-3 px-4 outline-none text-xs font-bold" style="direction:ltr"></textarea>
+          </div>
+
+          <div id="adImageWrap" class="hidden space-y-3">
+            <div>
+              <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">رابط الصورة</label>
+              <input id="ae_image" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold" placeholder="https://...">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">أو صورة من الجهاز</label>
+              <input id="ae_imageFile" type="file" accept="image/*" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+            </div>
+          </div>
+
+          <div id="adImagesSliderWrap" class="hidden">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-bold text-gray-500 block mr-1">صور السلايدر ووظيفة كل صورة</label>
+              <button type="button" onclick="addSlideBuilder()" class="px-3 py-2 bg-gray-900 text-white font-bold text-xs">+ إضافة صورة</button>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-[1.5rem] p-3 mb-3">
+              <input id="ae_slidesFiles" type="file" accept="image/*" multiple class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold mb-3">
+              <button type="button" onclick="appendSlidesFromFiles()" class="w-full py-3 bg-gray-100 font-bold">إضافة الصور المختارة إلى السلايدر</button>
+            </div>
+            <div id="ae_slidesBuilderList" class="space-y-3"></div>
+          </div>
+
+          <div id="adProductWrap" class="hidden">
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">اختر منتجًا</label>
+            <select id="ae_productKey" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold"></select>
+          </div>
+
+          <div id="adProductsSliderWrap" class="hidden">
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">اختر المنتجات للسلايدر</label>
+            <div id="ae_productsSliderList" class="check-grid small-scroll bg-white border border-gray-200 p-3 rounded-[1.5rem]"></div>
+          </div>
+
+          <button onclick="previewAdEditor()" class="px-4 py-3 bg-gray-900 text-white font-bold">معاينة</button>
+          <div id="adPreview" class="bg-gray-50 border border-gray-200 rounded-[1.5rem] p-3 min-h-[140px]"></div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-5">
+        <button onclick="saveAdFromEditor()" class="flex-1 py-3 bg-red-500 text-white font-bold">حفظ</button>
+        <button onclick="closeAdEditor()" class="flex-1 py-3 bg-gray-100 font-bold">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="communityPostEditorModal" class="fixed inset-0 z-[10000] modal-overlay hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] p-6 w-full max-w-5xl max-h-[94vh] overflow-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="communityPostEditorTitle" class="font-bold text-lg">إضافة منشور أدمن</h3>
+        <button onclick="closeCommunityPostEditor()" class="w-9 h-9 bg-gray-100 rounded-full"><i class="fas fa-xmark"></i></button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">عنوان المنشور</label>
+            <input id="cpe_title" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">الوصف</label>
+            <textarea id="cpe_desc" rows="5" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">السعر</label>
+              <input id="cpe_price" type="number" min="0" step="0.01" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">القسم</label>
+              <select id="cpe_category" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold"></select>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">الدولة</label>
+            <select id="cpe_country" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold"></select>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">طريقة الظهور داخل معلومات الدفع</label>
+            <select id="cpe_detailsMode" onchange="toggleCommunityPostModeFields()" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+              <option value="payment">عرض معلومات الدفع الحالية للموقع</option>
+              <option value="whatsapp">عرض زر واتساب فقط</option>
+            </select>
+          </div>
+
+          <div id="cpe_whatsappWrap" class="hidden">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">المقدمة</label>
+                <select id="cpe_whatsappPrefix" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+                  <option value="972">972+</option>
+                  <option value="970">970+</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">رقم الواتساب</label>
+                <input id="cpe_whatsappNumber" inputmode="numeric" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">صور من الجهاز (متعددة)</label>
+            <input id="cpe_imagesFiles" type="file" accept="image/*" multiple class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold">
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">أو روابط صور متعددة (كل رابط بسطر)</label>
+            <textarea id="cpe_imagesUrls" rows="8" class="w-full bg-gray-100 border-none py-3 px-4 outline-none text-sm font-bold" style="direction:ltr"></textarea>
+          </div>
+
+          <button onclick="previewCommunityPostEditor()" type="button" class="px-4 py-3 bg-gray-900 text-white font-bold">معاينة</button>
+
+          <div id="communityPostPreview" class="bg-gray-50 border border-gray-200 rounded-[1.5rem] p-4 min-h-[160px]"></div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-5">
+        <button onclick="saveCommunityPostFromEditor()" class="flex-1 py-3 bg-red-500 text-white font-bold">حفظ</button>
+        <button onclick="closeCommunityPostEditor()" class="flex-1 py-3 bg-gray-100 font-bold">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <section id="adminView" class="view-section active p-4 pb-28">
+    <div class="flex items-center gap-4 mb-6 justify-between">
+      <div class="flex items-center gap-4">
+        <button onclick="window.location.href='admin.html'" class="w-10 h-10 bg-white shadow rounded-full flex items-center justify-center">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <h2 class="font-bold text-lg">لوحة الأدمن 2</h2>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="window.location.href='admin.html'" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-full">
+          <i class="fas fa-box ml-1"></i> الأدمن الأساسي
+        </button>
+        <button onclick="adminLogout()" class="px-4 py-2 bg-gray-900 text-white font-bold rounded-full">
+          <i class="fas fa-right-from-bracket ml-1"></i> خروج
+        </button>
+      </div>
+    </div>
+
+    <div class="info-card p-6 shadow-sm space-y-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+        <button onclick="showAdminSection('categoriesSection')" class="admin-tab-btn py-3 bg-red-500 text-white font-bold" id="tab-categoriesSection">الأصناف</button>
+        <button onclick="showAdminSection('countriesSection')" class="admin-tab-btn py-3 bg-gray-100 text-gray-700 font-bold" id="tab-countriesSection">الدول</button>
+        <button onclick="showAdminSection('adsSection')" class="admin-tab-btn py-3 bg-gray-100 text-gray-700 font-bold" id="tab-adsSection">الإعلانات</button>
+        <button onclick="showAdminSection('communityPostsSection')" class="admin-tab-btn py-3 bg-gray-100 text-gray-700 font-bold" id="tab-communityPostsSection">منشورات الأدمن</button>
+        <button onclick="showAdminSection('userSubmissionsSection')" class="admin-tab-btn py-3 bg-gray-100 text-gray-700 font-bold" id="tab-userSubmissionsSection">منشورات المستخدمين</button>
+        <button onclick="showAdminSection('verificationSection')" class="admin-tab-btn py-3 bg-gray-100 text-gray-700 font-bold" id="tab-verificationSection">التوثيق</button>
+      </div>
+
+      <div id="categoriesSection" class="admin-section">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold">قسم الأصناف</h3>
+            <p class="text-[11px] text-gray-400">إضافة / تعديل / حذف الأصناف</p>
+          </div>
+          <button onclick="openCategoryEditor(null)" class="px-4 py-2 bg-red-500 text-white font-bold rounded-full">+ إضافة صنف</button>
+        </div>
+        <div id="adminCategories" class="space-y-2 mt-4"></div>
+      </div>
+
+      <div id="countriesSection" class="admin-section hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold">قسم الدول</h3>
+            <p class="text-[11px] text-gray-400">إضافة علم الدولة + العملة + قيمتها بالنسبة للشيكل</p>
+          </div>
+          <button onclick="openCountryEditor(null)" class="px-4 py-2 bg-gray-900 text-white font-bold rounded-full">+ إضافة دولة</button>
+        </div>
+        <div id="adminCountries" class="space-y-2 mt-4"></div>
+      </div>
+
+      <div id="adsSection" class="admin-section hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold">الإعلانات الممولة</h3>
+            <p class="text-[11px] text-gray-400">HTML / JSON / صورة / سلايدر صور / منتج / سلايدر منتجات</p>
+          </div>
+          <button onclick="openAdEditor(null)" class="px-4 py-2 bg-gray-900 text-white font-bold rounded-full">+ إضافة إعلان</button>
+        </div>
+        <div id="adminAds" class="space-y-2 mt-4"></div>
+      </div>
+
+      <div id="communityPostsSection" class="admin-section hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold">منشورات الأدمن</h3>
+            <p class="text-[11px] text-gray-400">صور متعددة + وصف + سعر + واتساب أو معلومات الدفع الحالية</p>
+          </div>
+          <button onclick="openCommunityPostEditor(null)" class="px-4 py-2 bg-gray-900 text-white font-bold rounded-full">+ إضافة منشور</button>
+        </div>
+        <div id="adminCommunityPosts" class="space-y-2 mt-4"></div>
+      </div>
+
+      <div id="userSubmissionsSection" class="admin-section hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold">منشورات المستخدمين</h3>
+            <p class="text-[11px] text-gray-400">معلق / موافقة / رفض / حذف</p>
+          </div>
+        </div>
+        <div id="adminUserSubmissions" class="space-y-2 mt-4"></div>
+      </div>
+
+      <div id="verificationSection" class="admin-section hidden">
+        <div class="bg-white border border-gray-200 rounded-[1.75rem] p-4">
+          <h3 class="font-bold mb-3">توثيق المستخدمين</h3>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <input id="verifyUserSearchInput" oninput="renderVerifyUsersSearch()" placeholder="ابحث بالاسم أو اليوزر" class="w-full bg-gray-50 border border-gray-200 py-3 px-4 text-sm font-bold">
+            <div class="lg:col-span-2 bg-gray-50 border border-gray-200 rounded-[1.5rem] p-3 text-[12px] text-gray-500 font-bold">
+              ابحث بالاسم أو اليوزر، ثم فعّل أو أزل التوثيق.
+            </div>
+          </div>
+          <div id="verifyUsersResults" class="space-y-2 mt-4"></div>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold">كلمة مرور الأدمن</h3>
+        <button onclick="openForceChangePin(false)" class="px-4 py-2 bg-gray-100 font-bold rounded-full">تغيير</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCnLAY7zQyBy7gUuL9wszt9aEhiJgvRmxI",
+      authDomain: "shop-d52dc.firebaseapp.com",
+      databaseURL: "https://shop-d52dc-default-rtdb.firebaseio.com",
+      projectId: "shop-d52dc",
+      storageBucket: "shop-d52dc.appspot.com",
+      messagingSenderId: "97580537866",
+      appId: "1:97580537866:web:abc46e5a2f527b6300a7f3",
+      measurementId: "G-956RQMBP42"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const rtdb = firebase.database();
+    const storage = firebase.storage();
+
+    const PATH_SETTINGS_ADMIN = "settings/admin";
+    const PATH_CATEGORIES = "categories";
+    const PATH_COUNTRIES = "countries";
+    const PATH_PRODUCTS = "products";
+    const PATH_ADS = "ads";
+    const PATH_USERS = "users";
+    const PATH_COMMUNITY_POSTS = "community_posts";
+    const PATH_VERIFIED_USERS = "verified_users";
+
+    const ADMIN_SESSION_KEY = "norhan_admin_session";
+
+    let adminSettingsCache = {
+      email: "homworkhhh76@gmail.com",
+      pinHash: null,
+      mustChange: true
+    };
+
+    let categories = [];
+    let countries = [];
+    let products = [];
+    let ads = [];
+    let users = [];
+    let communityPosts = [];
+    let verifiedUsersMap = {};
+    let remoteAdsMap = {};
+    let editingCategoryId = null;
+    let editingCountryCode = null;
+    let editingAdKey = null;
+    let editingCommunityPostKey = null;
+    let adminSession = JSON.parse(sessionStorage.getItem(ADMIN_SESSION_KEY) || "null");
+
+    let adSlidesBuilder = [];
+    let adSingleImageFile = null;
+    let adSlideFiles = {};
+
+    function optimizedImageAttrs(){
+      return 'loading="lazy" decoding="async" fetchpriority="low" referrerpolicy="no-referrer"';
+    }
+
+    function setLoading(on){
+      const el = document.getElementById('loadingOverlay');
+      if(!el) return;
+      on ? el.classList.remove('hidden') : el.classList.add('hidden');
+    }
+
+    function showToast(msg, type = "success"){
+      const t = document.createElement('div');
+      const icons = {
+        success: '<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>',
+        error: '<i class="fa-solid fa-circle-xmark text-rose-400 text-lg"></i>',
+        info: '<i class="fa-solid fa-circle-info text-sky-400 text-lg"></i>'
+      };
+      t.className = "toast-notification fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#111827]/95 backdrop-blur-md text-white px-5 py-3 rounded-full z-[10000] text-sm font-bold flex items-center gap-3 shadow-2xl border border-white/10";
+      t.innerHTML = `${icons[type] || icons.success}<span>${escapeHtml(msg)}</span>`;
+      document.body.appendChild(t);
+      setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translate(-50%,20px)';
+        setTimeout(() => t.remove(), 300);
+      }, 2500);
+    }
+
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function safeParseJSON(txt, fallback){
+      try{return JSON.parse(txt);}catch{return fallback;}
+    }
+
+    function uid(prefix="id"){
+      return prefix + "_" + Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4);
+    }
+
+    function normalizeCategoryId(value){
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g,'-')
+        .replace(/[^a-z0-9_-]/g,'');
+    }
+
+    function normalizeCountryCode(value){
+      return String(value || "").trim().toUpperCase().replace(/[^A-Z]/g,"").slice(0,3);
+    }
+
+    function normalizeUserLookup(value){
+      return String(value || "").trim().toLowerCase().replace(/^@/, "");
+    }
+
+    async function sha256(text){
+      const data = new TextEncoder().encode(text);
+      const hash = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,"0")).join("");
+    }
+
+    async function ensureAdminSettings(){
+      const snap = await rtdb.ref(PATH_SETTINGS_ADMIN).get();
+      if(!snap.exists()){
+        const defaultHash = await sha256("0000");
+        const initial = {
+          pinHash: defaultHash,
+          mustChange: true,
+          email: "homworkhhh76@gmail.com",
+          updatedAt: Date.now()
+        };
+        await rtdb.ref(PATH_SETTINGS_ADMIN).set(initial);
+        adminSettingsCache = {...initial};
+        return initial;
+      }
+      const d = snap.val() || {};
+      adminSettingsCache = {
+        pinHash: d.pinHash || null,
+        mustChange: d.mustChange !== false,
+        email: d.email || "homworkhhh76@gmail.com"
+      };
+      return adminSettingsCache;
+    }
+
+    async function uploadFileToStorage(file, folder){
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+      const path = `${folder}/${Date.now()}_${Math.random().toString(16).slice(2)}.${ext}`;
+      const ref = storage.ref().child(path);
+      await ref.put(file);
+      return await ref.getDownloadURL();
+    }
+
+    function showAdminSection(sectionId){
+      document.querySelectorAll('.admin-section').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(sectionId).classList.remove('hidden');
+
+      document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+        btn.classList.remove('bg-red-500','text-white');
+        btn.classList.add('bg-gray-100','text-gray-700');
+      });
+
+      const activeTab = document.getElementById('tab-' + sectionId);
+      if(activeTab){
+        activeTab.classList.remove('bg-gray-100','text-gray-700');
+        activeTab.classList.add('bg-red-500','text-white');
+      }
+    }
+
+    async function adminLogin(){
+      const email = (document.getElementById("adminEmailInput").value || "").trim().toLowerCase();
+      const pin = (document.getElementById("adminPinInput").value || "").trim();
+
+      if(!email || !email.includes("@")){
+        showToast("أدخل البريد بشكل صحيح","error");
+        return;
+      }
+      if(pin.length < 4){
+        showToast("أدخل كلمة مرور صحيحة","error");
+        return;
+      }
+
+      setLoading(true);
+      try{
+        const st = adminSettingsCache.pinHash ? adminSettingsCache : await ensureAdminSettings();
+        const h = await sha256(pin);
+
+        if((st.email || "").toLowerCase() !== email){
+          showToast("البريد غير صحيح","error");
+          return;
+        }
+
+        if(!st.pinHash || h !== st.pinHash){
+          showToast("كلمة المرور خاطئة","error");
+          return;
+        }
+
+        adminSession = {ok:true, expiresAt: Date.now() + 2 * 60 * 60 * 1000};
+        sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(adminSession));
+        document.getElementById("adminLoginModal").classList.add("hidden");
+
+        if(st.mustChange){
+          openForceChangePin(true);
+          return;
+        }
+
+        await enterAdmin();
+      }catch(e){
+        console.error(e);
+        showToast("خطأ أثناء تسجيل الدخول","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    function openForceChangePin(forced){
+      document.getElementById("newPin1").value = "";
+      document.getElementById("newPin2").value = "";
+      document.getElementById("adminChangePinModal").classList.remove("hidden");
+      document.getElementById("adminChangePinModal").dataset.forced = forced ? "1" : "0";
+    }
+
+    function closeChangePinModal(){
+      const forced = document.getElementById("adminChangePinModal").dataset.forced === "1";
+      if(forced){
+        showToast("يجب تغيير كلمة المرور أولاً","error");
+        return;
+      }
+      document.getElementById("adminChangePinModal").classList.add("hidden");
+    }
+
+    async function changeAdminPin(){
+      if(!adminSession || Date.now() > adminSession.expiresAt){
+        showToast("سجّل الدخول أولاً","error");
+        return;
+      }
+      const p1 = (document.getElementById("newPin1").value || "").trim();
+      const p2 = (document.getElementById("newPin2").value || "").trim();
+      if(p1.length < 4 || !/^\d+$/.test(p1)){
+        showToast("كلمة المرور يجب أن تكون أرقام (4+)","error");
+        return;
+      }
+      if(p1 !== p2){
+        showToast("التأكيد غير مطابق","error");
+        return;
+      }
+      setLoading(true);
+      try{
+        const h = await sha256(p1);
+        await rtdb.ref(PATH_SETTINGS_ADMIN).update({pinHash:h,mustChange:false,updatedAt:Date.now()});
+        adminSettingsCache.pinHash = h;
+        adminSettingsCache.mustChange = false;
+        showToast("تم تغيير كلمة المرور","success");
+        document.getElementById("adminChangePinModal").classList.add("hidden");
+        await enterAdmin();
+      }catch(e){
+        console.error(e);
+        showToast("فشل تغيير كلمة المرور","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    function adminLogout(){
+      adminSession = null;
+      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      showToast("تم تسجيل الخروج","success");
+      window.location.href = "index.html";
+    }
+
+    function buildCategories(remoteCats){
+      categories = Object.entries(remoteCats || {}).map(([id,val]) => ({
+        id,
+        name: val?.name || id,
+        order: Number(val?.order || 0),
+        enabled: val?.enabled !== false
+      })).sort((a,b) => (a.order || 0) - (b.order || 0));
+    }
+
+    function buildCountries(remote){
+      countries = Object.entries(remote || {}).map(([code,val]) => ({
+        code,
+        name: val?.name || code,
+        flagUrl: val?.flagUrl || "",
+        currencyCode: val?.currencyCode || code,
+        currencySymbol: val?.currencySymbol || val?.currencyCode || code,
+        rateToIls: Number(val?.rateToIls || 1),
+        enabled: val?.enabled !== false,
+        order: Number(val?.order || 0)
+      })).sort((a,b) => (a.order || 0) - (b.order || 0));
+    }
+
+    function buildProducts(remotePro){
+      products = Object.entries(remotePro || {}).map(([key,val]) => ({
+        __key:key,
+        name: val?.name || "منتج",
+        image: val?.image || "https://via.placeholder.com/500?text=No+Image",
+        price: Number(val?.price || 0)
+      }));
+    }
+
+    function normalizeAdClickAction(v){
+      if(!v || typeof v !== "object") return {type:"none",link:"",categoryId:"",productKey:""};
+      return {
+        type: v.type || "none",
+        link: v.link || "",
+        categoryId: v.categoryId || "",
+        productKey: v.productKey || ""
+      };
+    }
+
+    function normalizeMiddleJson(v){
+      const arr = Array.isArray(v) ? v : [];
+      return arr.map(item => {
+        const type = item.type || "text";
+        if(type === "note") return {type:"note", style:item.style || "info", text:item.text || ""};
+        if(type === "image") return {type:"image", src:item.src || "", caption:item.caption || ""};
+        if(type === "button") return {type:"button", label:item.label || "زر", actionType:item.actionType || "toast", url:item.url || "", message:item.message || "", toastType:item.toastType || "success"};
+        if(type === "html") return {type:"html", html:item.html || ""};
+        if(type === "card") return {type:"card", title:item.title || "", text:item.text || ""};
+        if(type === "grid") return {type:"grid", columns:Number(item.columns || 2), items:Array.isArray(item.items) ? item.items : []};
+        return {type:"text", title:item.title || "", text:item.text || ""};
+      });
+    }
+
+    function normalizeAdSlides(v){
+      if(!Array.isArray(v)) return [];
+      return v.map(item => ({
+        id: item.id || uid("slide"),
+        src: item.src || "",
+        clickAction: normalizeAdClickAction(item.clickAction)
+      })).filter(x => x.src);
+    }
+
+    function normalizeAdDisplay(v){
+      return {
+        showBadge: v?.showBadge !== false,
+        showBorder: v?.showBorder !== false
+      };
+    }
+
+    function normalizeAdVisibility(v){
+      return {
+        categoryMode: v?.categoryMode || "all",
+        categories: Array.isArray(v?.categories) ? v.categories : []
+      };
+    }
+
+    function adStillActive(ad){
+      if(!ad || !ad.enabled) return false;
+      if(ad.infinite === true) return true;
+      if(!ad.endAt) return true;
+      return Date.now() <= Number(ad.endAt);
+    }
+
+    function buildAds(remote){
+      remoteAdsMap = remote || {};
+      ads = Object.entries(remote || {}).map(([key,val]) => ({
+        __key:key,
+        name: val?.name || "إعلان",
+        type: val?.type || "web",
+        code: val?.code || "",
+        json: normalizeMiddleJson(val?.json || []),
+        image: val?.image || "",
+        slides: normalizeAdSlides(val?.slides || []),
+        productKey: val?.productKey || "",
+        productKeys: Array.isArray(val?.productKeys) ? val.productKeys : [],
+        span: val?.span || "1",
+        position: Number(val?.position || 1),
+        enabled: val?.enabled !== false,
+        infinite: val?.infinite === true,
+        startAt: Number(val?.startAt || Date.now()),
+        endAt: Number(val?.endAt || 0),
+        clickAction: normalizeAdClickAction(val?.clickAction),
+        display: normalizeAdDisplay(val?.display),
+        visibility: normalizeAdVisibility(val?.visibility)
+      })).filter(adStillActive).sort((a,b) => (a.position || 0) - (b.position || 0));
+    }
+
+    function buildUsers(remote){
+      users = Object.entries(remote || {}).map(([key,val]) => ({
+        key,
+        uid: val?.uid || key,
+        username: val?.username || "",
+        userHandle: val?.userHandle || "",
+        displayName: val?.displayName || "",
+        email: val?.email || "",
+        role: val?.role || "user",
+        createdAt: Number(val?.createdAt || 0)
+      })).sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+    }
+
+    function buildCommunityPosts(remote){
+      communityPosts = Object.entries(remote || {}).map(([key,val]) => ({
+        key,
+        source: val?.source || "user",
+        title: val?.title || "منشور",
+        desc: val?.desc || "",
+        price: Number(val?.price || 0),
+        categoryId: val?.categoryId || "",
+        countryCode: val?.countryCode || "GLOBAL",
+        images: Array.isArray(val?.images) ? val.images : [],
+        detailsMode: val?.detailsMode || "payment",
+        whatsappPrefix: val?.whatsappPrefix || "972",
+        whatsappNumber: val?.whatsappNumber || "",
+        approvalStatus: val?.approvalStatus || (val?.source === "admin" ? "approved" : "pending"),
+        rejectDeleteAt: Number(val?.rejectDeleteAt || 0),
+        reviewedAt: Number(val?.reviewedAt || 0),
+        createdAt: Number(val?.createdAt || 0),
+        updatedAt: Number(val?.updatedAt || 0),
+        userId: val?.userId || "",
+        username: val?.username || "",
+        userHandle: val?.userHandle || "",
+        displayName: val?.displayName || "",
+        verifiedSnapshot: !!val?.verifiedSnapshot
+      })).sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+    }
+
+    async function loadFromFirebase(){
+      try{
+        const [catsSnap, countriesSnap, productsSnap, adsSnap, usersSnap, postsSnap, verifiedSnap] = await Promise.all([
+          rtdb.ref(PATH_CATEGORIES).get(),
+          rtdb.ref(PATH_COUNTRIES).get(),
+          rtdb.ref(PATH_PRODUCTS).get(),
+          rtdb.ref(PATH_ADS).get(),
+          rtdb.ref(PATH_USERS).get(),
+          rtdb.ref(PATH_COMMUNITY_POSTS).get(),
+          rtdb.ref(PATH_VERIFIED_USERS).get()
+        ]);
+
+        buildCategories(catsSnap.val() || {});
+        buildCountries(countriesSnap.val() || {});
+        buildProducts(productsSnap.val() || {});
+        buildAds(adsSnap.val() || {});
+        buildUsers(usersSnap.val() || {});
+        buildCommunityPosts(postsSnap.val() || {});
+        verifiedUsersMap = verifiedSnap.val() || {};
+      }catch(e){
+        console.error(e);
+        categories = [];
+        countries = [];
+        products = [];
+        ads = [];
+        users = [];
+        communityPosts = [];
+        verifiedUsersMap = {};
+        showToast("تعذر تحميل بعض البيانات","error");
+      }
+      refreshAdminLists();
+    }
+
+    async function enterAdmin(){
+      showAdminSection('categoriesSection');
+      await loadFromFirebase();
+      await cleanupRejectedPosts();
+      await loadFromFirebase();
+    }
+
+    function renderAdminCategories(){
+      const el = document.getElementById("adminCategories");
+      const cats = categories.slice().sort((a,b) => (a.order || 0) - (b.order || 0));
+      el.innerHTML = cats.map(c => `
+        <div class="bg-gray-50 border border-gray-100 rounded-[2rem] p-4 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-sm">${escapeHtml(c.name)} <span class="text-gray-400 text-xs">(${c.id})</span></div>
+            <div class="text-[11px] text-gray-500 mt-1">ترتيب: ${c.order || 0} • ${c.enabled !== false ? '<span class="text-green-700 font-bold">ظاهر</span>' : '<span class="text-red-600 font-bold">مخفي</span>'}</div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="toggleCategoryVisibility('${c.id}', ${c.enabled !== false ? 'false' : 'true'})" class="w-10 h-10 bg-white border rounded-full ${c.enabled !== false ? 'text-red-600' : 'text-green-700'}">
+              <i class="fas ${c.enabled !== false ? 'fa-eye-slash' : 'fa-eye'}"></i>
+            </button>
+            <button onclick="openCategoryEditor('${c.id}')" class="w-10 h-10 bg-white border rounded-full"><i class="fas fa-pen"></i></button>
+            <button onclick="deleteCategory('${c.id}')" class="w-10 h-10 bg-white border rounded-full text-red-600"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-center text-gray-400 py-6">لا توجد أصناف</div>`;
+    }
+
+    function renderAdminCountries(){
+      const el = document.getElementById("adminCountries");
+      const arr = countries.slice().sort((a,b) => (a.order || 0) - (b.order || 0));
+      el.innerHTML = arr.map(c => `
+        <div class="bg-gray-50 border border-gray-100 rounded-[2rem] p-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            ${c.flagUrl ? `<img src="${escapeHtml(c.flagUrl)}" class="country-icon" ${optimizedImageAttrs()} onerror="this.style.display='none'">` : `<div class="w-[22px] h-[22px] flex items-center justify-center"><i class="fas fa-globe text-gray-500 text-sm"></i></div>`}
+            <div>
+              <div class="font-bold text-sm">${escapeHtml(c.name)} <span class="text-gray-400 text-xs">(${c.code})</span></div>
+              <div class="text-[11px] text-gray-500 mt-1">
+                ${escapeHtml(c.currencyCode)} ${escapeHtml(c.currencySymbol)} • 1 ${escapeHtml(c.currencyCode)} = ${Number(c.rateToIls || 0)} ₪
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="toggleCountryVisibility('${c.code}', ${c.enabled !== false ? 'false' : 'true'})" class="w-10 h-10 bg-white border rounded-full ${c.enabled !== false ? 'text-red-600' : 'text-green-700'}">
+              <i class="fas ${c.enabled !== false ? 'fa-eye-slash' : 'fa-eye'}"></i>
+            </button>
+            <button onclick="openCountryEditor('${c.code}')" class="w-10 h-10 bg-white border rounded-full"><i class="fas fa-pen"></i></button>
+            <button onclick="deleteCountry('${c.code}')" class="w-10 h-10 bg-white border rounded-full text-red-600"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-center text-gray-400 py-6">لا توجد دول</div>`;
+    }
+
+    function renderAdminAds(){
+      const el = document.getElementById("adminAds");
+      const arr = ads.slice().sort((a,b) => (a.position || 0) - (b.position || 0));
+      el.innerHTML = arr.map(ad => {
+        const clickAction = normalizeAdClickAction(ad.clickAction);
+        const display = normalizeAdDisplay(ad.display);
+        const visibility = normalizeAdVisibility(ad.visibility);
+        let clickLabel = "بدون";
+        if(clickAction.type === "link") clickLabel = "رابط";
+        if(clickAction.type === "category") clickLabel = "قسم";
+        if(clickAction.type === "product") clickLabel = "منتج";
+
+        let visibilityText = "كل الأقسام";
+        if(visibility.categoryMode === "all_only") visibilityText = "صفحة الكل فقط";
+        if(visibility.categoryMode === "selected") visibilityText = visibility.categories.join(", ") || "أقسام محددة";
+
+        return `
+          <div class="bg-gray-50 border border-gray-100 rounded-[2rem] p-4 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-sm">${escapeHtml(ad.name)}</div>
+              <div class="text-[11px] text-gray-500 mt-1">
+                النوع: <span class="font-bold">${escapeHtml(ad.type)}</span> •
+                الترتيب: <span class="font-bold">${ad.position}</span> •
+                المكان: <span class="font-bold">${ad.span==='2'?'2':ad.span==='free'?'حر':'1'}</span> •
+                عند الضغط: <span class="font-bold">${clickLabel}</span> •
+                الظهور: <span class="font-bold">${escapeHtml(visibilityText)}</span> •
+                ممول: <span class="font-bold">${display.showBadge ? 'نعم' : 'لا'}</span> •
+                الحد: <span class="font-bold">${display.showBorder ? 'ظاهر' : 'مزال'}</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="toggleAdVisibility('${ad.__key}', ${ad.enabled !== false ? 'false' : 'true'})" class="w-10 h-10 bg-white border rounded-full ${ad.enabled !== false ? 'text-red-600' : 'text-green-700'}">
+                <i class="fas ${ad.enabled !== false ? 'fa-eye-slash' : 'fa-eye'}"></i>
+              </button>
+              <button onclick="openAdEditor('${ad.__key}')" class="w-10 h-10 bg-white border rounded-full"><i class="fas fa-pen"></i></button>
+              <button onclick="deleteAd('${ad.__key}')" class="w-10 h-10 bg-white border rounded-full text-red-600"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+      }).join('') || `<div class="text-center text-gray-400 py-6">لا توجد إعلانات</div>`;
+    }
+
+    function renderAdminCommunityPosts(){
+      const el = document.getElementById("adminCommunityPosts");
+      const list = communityPosts.filter(p => p.source === "admin");
+
+      el.innerHTML = list.map(post => `
+        <div class="bg-gray-50 border border-gray-100 rounded-[2rem] p-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img src="${escapeHtml((post.images || [])[0] || 'https://via.placeholder.com/140?text=Post')}" class="w-16 h-16 object-cover rounded-[1rem] border bg-white">
+            <div>
+              <div class="font-bold text-sm">${escapeHtml(post.title)}</div>
+              <div class="text-[11px] text-gray-500 mt-1">
+                القسم: <span class="font-bold">${escapeHtml(post.categoryId || "-")}</span> •
+                الدولة: <span class="font-bold">${escapeHtml(post.countryCode || "GLOBAL")}</span> •
+                الوضع: <span class="font-bold">${post.detailsMode === "payment" ? "معلومات الدفع" : "واتساب"}</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="openCommunityPostEditor('${post.key}')" class="w-10 h-10 bg-white border rounded-full"><i class="fas fa-pen"></i></button>
+            <button onclick="deleteCommunityPost('${post.key}')" class="w-10 h-10 bg-white border rounded-full text-red-600"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      `).join('') || `<div class="text-center text-gray-400 py-6">لا توجد منشورات أدمن</div>`;
+    }
+
+    function getVerifiedLabelForUser(postOrUser){
+      const lookup = normalizeUserLookup(postOrUser?.userHandle || postOrUser?.username || postOrUser?.displayName || "");
+      return !!verifiedUsersMap[lookup];
+    }
+
+    function renderAdminUserSubmissions(){
+      const el = document.getElementById("adminUserSubmissions");
+      const list = communityPosts.filter(p => p.source === "user");
+
+      el.innerHTML = list.map(post => {
+        const verified = getVerifiedLabelForUser(post);
+        const statusText = post.approvalStatus === "approved"
+          ? '<span class="text-green-700 font-bold">تمت الموافقة</span>'
+          : post.approvalStatus === "rejected"
+          ? '<span class="text-red-600 font-bold">مرفوض</span>'
+          : '<span class="text-amber-600 font-bold">معلق</span>';
+
+        return `
+          <div class="bg-white border border-gray-100 rounded-[2rem] p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3">
+                <img src="${escapeHtml((post.images || [])[0] || 'https://via.placeholder.com/140?text=Post')}" class="w-16 h-16 object-cover rounded-[1rem] border bg-white">
+                <div>
+                  <div class="font-bold text-sm flex items-center gap-2">
+                    <span>${escapeHtml(post.title)}</span>
+                    ${verified ? '<span class="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1 rounded-full text-[10px] font-bold">موثق</span>' : ''}
+                  </div>
+                  <div class="text-[11px] text-gray-500 mt-2 space-y-1">
+                    <div>الحالة: ${statusText}</div>
+                    <div>الاسم: <span class="font-bold">${escapeHtml(post.displayName || post.username || "-")}</span></div>
+                    <div>اليوزر: <span class="font-bold">${escapeHtml(post.userHandle || "-")}</span></div>
+                    <div>القسم: <span class="font-bold">${escapeHtml(post.categoryId || "-")}</span></div>
+                    <div>الدولة: <span class="font-bold">${escapeHtml(post.countryCode || "GLOBAL")}</span></div>
+                    <div>التواصل: <span class="font-bold">${post.detailsMode === "whatsapp" ? 'واتساب' : 'معلومات الدفع'}</span></div>
+                    ${post.rejectDeleteAt ? `<div>يحذف تلقائياً: <span class="font-bold">${new Date(post.rejectDeleteAt).toLocaleString('ar')}</span></div>` : ``}
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2 justify-end">
+                ${post.approvalStatus !== "approved" ? `<button onclick="approveUserSubmission('${post.key}')" class="px-3 py-2 bg-green-50 text-green-700 font-bold rounded-full text-xs">موافقة</button>` : ``}
+                ${post.approvalStatus !== "rejected" ? `<button onclick="rejectUserSubmission('${post.key}')" class="px-3 py-2 bg-amber-50 text-amber-700 font-bold rounded-full text-xs">رفض</button>` : ``}
+                <button onclick="deleteCommunityPost('${post.key}')" class="px-3 py-2 bg-red-50 text-red-600 font-bold rounded-full text-xs">حذف</button>
+              </div>
+            </div>
+
+            <div class="mt-3 text-sm text-gray-700 whitespace-pre-line">${escapeHtml(post.desc || "")}</div>
+
+            ${(post.images || []).length > 1 ? `
+              <div class="overflow-x-auto flex gap-2 pt-3">
+                ${post.images.map(img => `<img src="${escapeHtml(img)}" class="thumb" onerror="this.style.display='none'">`).join('')}
+              </div>
+            ` : ``}
+          </div>
+        `;
+      }).join('') || `<div class="text-center text-gray-400 py-6">لا توجد منشورات مستخدمين</div>`;
+    }
+
+    function renderVerifyUsersSearch(){
+      const q = normalizeUserLookup(document.getElementById("verifyUserSearchInput")?.value || "");
+      const el = document.getElementById("verifyUsersResults");
+      if(!el) return;
+
+      const sourceUsers = [
+        ...users.map(u => ({
+          uid: u.uid,
+          username: u.username,
+          userHandle: u.userHandle,
+          displayName: u.displayName,
+          role: u.role || "user"
+        })),
+        ...communityPosts.filter(p => p.source === "user").map(p => ({
+          uid: p.userId || "",
+          username: p.username || "",
+          userHandle: p.userHandle || "",
+          displayName: p.displayName || "",
+          role: "user"
+        }))
+      ];
+
+      const uniqueMap = {};
+      sourceUsers.forEach(u => {
+        const key = normalizeUserLookup(u.userHandle || u.username || u.displayName);
+        if(key) uniqueMap[key] = u;
+      });
+
+      const list = Object.values(uniqueMap).filter(u => {
+        if(!q) return true;
+        return [u.username, u.userHandle, u.displayName].some(v => normalizeUserLookup(v).includes(q));
+      }).slice(0, 20);
+
+      el.innerHTML = list.map(u => {
+        const verifyKey = normalizeUserLookup(u.userHandle || u.username || u.displayName);
+        const verified = !!verifiedUsersMap[verifyKey];
+        return `
+          <div class="bg-gray-50 border border-gray-100 rounded-[1.5rem] p-4 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-sm">${escapeHtml(u.displayName || u.username || u.userHandle || "مستخدم")}</div>
+              <div class="text-[11px] text-gray-500 mt-1">
+                اليوزر: <span class="font-bold">${escapeHtml(u.userHandle || "-")}</span> •
+                الاسم: <span class="font-bold">${escapeHtml(u.username || "-")}</span> •
+                النوع: <span class="font-bold">${escapeHtml(u.role || "user")}</span>
+              </div>
+            </div>
+            <button onclick="toggleUserVerification('${verifyKey}','${escapeHtml(u.username || "")}','${escapeHtml(u.userHandle || "")}','${escapeHtml(u.displayName || "")}', ${verified ? 'false' : 'true'})" class="px-4 py-2 ${verified ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-700'} font-bold rounded-full">
+              ${verified ? 'إزالة التوثيق' : 'توثيق'}
+            </button>
+          </div>
+        `;
+      }).join('') || `<div class="text-center text-gray-400 py-6">لا يوجد نتائج</div>`;
+    }
+
+    async function toggleUserVerification(verifyKey, username, userHandle, displayName, enable){
+      if(!verifyKey){
+        showToast("تعذر تحديد المستخدم","error");
+        return;
+      }
+      setLoading(true);
+      try{
+        if(enable){
+          await rtdb.ref(`${PATH_VERIFIED_USERS}/${verifyKey}`).set({
+            username,
+            userHandle,
+            displayName,
+            verified: true,
+            updatedAt: Date.now()
+          });
+        }else{
+          await rtdb.ref(`${PATH_VERIFIED_USERS}/${verifyKey}`).remove();
+        }
+        showToast(enable ? "تم توثيق المستخدم" : "تمت إزالة التوثيق","success");
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل تحديث التوثيق","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function approveUserSubmission(key){
+      setLoading(true);
+      try{
+        const ref = rtdb.ref(`${PATH_COMMUNITY_POSTS}/${key}`);
+        const snap = await ref.get();
+        if(!snap.exists()){
+          showToast("المنشور غير موجود","error");
+          setLoading(false);
+          return;
+        }
+        const post = snap.val() || {};
+        const verifyKey = normalizeUserLookup(post.userHandle || post.username || post.displayName || "");
+        const verified = !!verifiedUsersMap[verifyKey];
+
+        await ref.update({
+          approvalStatus: "approved",
+          reviewedAt: Date.now(),
+          rejectDeleteAt: 0,
+          verifiedSnapshot: verified
+        });
+
+        showToast("تمت الموافقة على المنشور","success");
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل تنفيذ الموافقة","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function rejectUserSubmission(key){
+      setLoading(true);
+      try{
+        await rtdb.ref(`${PATH_COMMUNITY_POSTS}/${key}`).update({
+          approvalStatus: "rejected",
+          reviewedAt: Date.now(),
+          rejectDeleteAt: Date.now() + (24 * 60 * 60 * 1000)
+        });
+        showToast("تم رفض المنشور وسيُحذف بعد 24 ساعة","success");
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل تنفيذ الرفض","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function cleanupRejectedPosts(){
+      try{
+        const now = Date.now();
+        const expired = communityPosts.filter(p => p.source === "user" && p.approvalStatus === "rejected" && p.rejectDeleteAt && p.rejectDeleteAt <= now);
+        if(!expired.length) return;
+        await Promise.all(expired.map(p => rtdb.ref(`${PATH_COMMUNITY_POSTS}/${p.key}`).remove()));
+      }catch(e){
+        console.error("cleanupRejectedPosts", e);
+      }
+    }
+
+    async function deleteCommunityPost(key){
+      if(!confirm("حذف المنشور؟")) return;
+      setLoading(true);
+      try{
+        await rtdb.ref(`${PATH_COMMUNITY_POSTS}/${key}`).remove();
+        showToast("تم حذف المنشور","success");
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل حذف المنشور","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    function refreshAdminLists(){
+      renderAdminCategories();
+      renderAdminCountries();
+      renderAdminAds();
+      renderAdminCommunityPosts();
+      renderAdminUserSubmissions();
+      renderVerifyUsersSearch();
+      populateAdProductDropdown();
+      populateAdClickProductDropdown();
+      populateAdClickCategoryDropdown();
+      populateAdCategoriesChecklist();
+      populateAdProductsSliderChecklist();
+      populateCommunityPostDropdowns();
+    }
+
+    function openCategoryEditor(catId){
+      if(!adminSession || Date.now() > adminSession.expiresAt){
+        showToast("سجّل الدخول أولاً","error");
+        return;
+      }
+      editingCategoryId = catId;
+
+      if(!catId){
+        document.getElementById("categoryEditorTitle").innerText = "إضافة صنف";
+        document.getElementById("ce_id").value = "";
+        document.getElementById("ce_name").value = "";
+        document.getElementById("ce_order").value = 0;
+        document.getElementById("ce_enabled").checked = true;
+        document.getElementById("ce_id").disabled = false;
+      }else{
+        const c = categories.find(x => x.id === catId);
+        document.getElementById("categoryEditorTitle").innerText = "تعديل صنف";
+        document.getElementById("ce_id").value = c?.id || catId;
+        document.getElementById("ce_name").value = c?.name || "";
+        document.getElementById("ce_order").value = c?.order || 0;
+        document.getElementById("ce_enabled").checked = c?.enabled !== false;
+        document.getElementById("ce_id").disabled = true;
+      }
+      document.getElementById("categoryEditorModal").classList.remove("hidden");
+    }
+
+    function closeCategoryEditor(){
+      document.getElementById("categoryEditorModal").classList.add("hidden");
+      document.getElementById("ce_id").disabled = false;
+      editingCategoryId = null;
+    }
+
+    async function saveCategoryFromEditor(){
+      const id = normalizeCategoryId(document.getElementById("ce_id").value || "");
+      const name = (document.getElementById("ce_name").value || "").trim();
+      const order = Number(document.getElementById("ce_order").value || 0);
+      const enabled = document.getElementById("ce_enabled").checked;
+
+      if(!id || id === "all"){
+        showToast("categoryId غير صالح","error");
+        return;
+      }
+      if(name.length < 2){
+        showToast("اكتب اسم الصنف","error");
+        return;
+      }
+
+      setLoading(true);
+      try{
+        await rtdb.ref(`${PATH_CATEGORIES}/${id}`).update({name,order,enabled,updatedAt:Date.now()});
+        showToast("تم حفظ الصنف","success");
+        closeCategoryEditor();
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل حفظ الصنف","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function deleteCategory(id){
+      if(!confirm("حذف الصنف؟")) return;
+      setLoading(true);
+      try{
+        await rtdb.ref(`${PATH_CATEGORIES}/${id}`).remove();
+        showToast("تم حذف الصنف","success");
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل حذف الصنف","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function toggleCategoryVisibility(id, enabled){
+      setLoading(true);
+      try{
+        await rtdb.ref(`${PATH_CATEGORIES}/${id}/enabled`).set(!!enabled);
+        showToast("تم تحديث ظهور الصنف","success");
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل التحديث","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    function openCountryEditor(code){
+      if(!adminSession || Date.now() > adminSession.expiresAt){
+        showToast("سجّل الدخول أولاً","error");
+        return;
+      }
+
+      editingCountryCode = code || null;
+
+      if(!code){
+        document.getElementById("countryEditorTitle").innerText = "إضافة دولة";
+        document.getElementById("coe_code").value = "";
+        document.getElementById("coe_name").value = "";
+        document.getElementById("coe_flagUrl").value = "";
+        document.getElementById("coe_currencyCode").value = "";
+        document.getElementById("coe_currencySymbol").value = "";
+        document.getElementById("coe_rateToIls").value = "";
+        document.getElementById("coe_order").value = 0;
+        document.getElementById("coe_enabled").checked = true;
+        document.getElementById("coe_code").disabled = false;
+      }else{
+        const c = countries.find(x => x.code === code) || {};
+        document.getElementById("countryEditorTitle").innerText = "تعديل دولة";
+        document.getElementById("coe_code").value = c.code || "";
+        document.getElementById("coe_name").value = c.name || "";
+        document.getElementById("coe_flagUrl").value = c.flagUrl || "";
+        document.getElementById("coe_currencyCode").value = c.currencyCode || "";
+        document.getElementById("coe_currencySymbol").value = c.currencySymbol || "";
+        document.getElementById("coe_rateToIls").value = Number(c.rateToIls || 1);
+        document.getElementById("coe_order").value = Number(c.order || 0);
+        document.getElementById("coe_enabled").checked = c.enabled !== false;
+        document.getElementById("coe_code").disabled = true;
+      }
+
+      document.getElementById("countryEditorModal").classList.remove("hidden");
+    }
+
+    function closeCountryEditor(){
+      document.getElementById("countryEditorModal").classList.add("hidden");
+      document.getElementById("coe_code").disabled = false;
+      editingCountryCode = null;
+    }
+
+    async function saveCountryFromEditor(){
+      const code = normalizeCountryCode(document.getElementById("coe_code").value || "");
+      const name = (document.getElementById("coe_name").value || "").trim();
+      const flagUrl = (document.getElementById("coe_flagUrl").value || "").trim();
+      const currencyCode = (document.getElementById("coe_currencyCode").value || "").trim().toUpperCase();
+      const currencySymbol = (document.getElementById("coe_currencySymbol").value || "").trim();
+      const rateToIls = Number(document.getElementById("coe_rateToIls").value || 0);
+      const order = Number(document.getElementById("coe_order").value || 0);
+      const enabled = document.getElementById("coe_enabled").checked;
+
+      if(code.length < 2){
+        showToast("رمز الدولة غير صالح","error");
+        return;
+      }
+      if(name.length < 2){
+        showToast("اسم الدولة مطلوب","error");
+        return;
+      }
+      if(!currencyCode){
+        showToast("رمز العملة مطلوب","error");
+        return;
+      }
+      if(!(rateToIls > 0)){
+        showToast("قيمة العملة بالنسبة للشيكل غير صحيحة","error");
+        return;
+      }
+
+      setLoading(true);
+      try{
+        await rtdb.ref(`${PATH_COUNTRIES}/${code}`).update({
+          name,
+          flagUrl,
+          currencyCode,
+          currencySymbol,
+          rateToIls,
+          order,
+          enabled,
+          updatedAt: Date.now()
+        });
+        showToast("تم حفظ الدولة","success");
+        closeCountryEditor();
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل حفظ الدولة","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function deleteCountry(code){
+      if(!confirm("حذف الدولة؟")) return;
+      setLoading(true);
+      try{
+        await rtdb.ref(`${PATH_COUNTRIES}/${code}`).remove();
+        showToast("تم حذف الدولة","success");
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل حذف الدولة","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function toggleCountryVisibility(code, enabled){
+      setLoading(true);
+      try{
+        await rtdb.ref(`${PATH_COUNTRIES}/${code}/enabled`).set(!!enabled);
+        showToast("تم تحديث ظهور الدولة","success");
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل التحديث","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    function populateAdProductDropdown(selectedKey=""){
+      const sel = document.getElementById("ae_productKey");
+      if(!sel) return;
+      sel.innerHTML = products.map(p => `<option value="${escapeHtml(p.__key)}" ${selectedKey===p.__key?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
+    }
+
+    function populateAdClickProductDropdown(selectedKey=""){
+      const sel = document.getElementById("ae_clickProductKey");
+      if(!sel) return;
+      sel.innerHTML = products.map(p => `<option value="${escapeHtml(p.__key)}" ${selectedKey===p.__key?'selected':''}>${escapeHtml(p.name)}</option>`).join('');
+    }
+
+    function populateAdClickCategoryDropdown(selectedId=""){
+      const sel = document.getElementById("ae_clickCategoryId");
+      if(!sel) return;
+      sel.innerHTML = categories.filter(c => c.enabled !== false).map(c => `<option value="${escapeHtml(c.id)}" ${selectedId===c.id?'selected':''}>${escapeHtml(c.name)} (${escapeHtml(c.id)})</option>`).join('');
+    }
+
+    function populateAdCategoriesChecklist(selected=[]){
+      const box = document.getElementById("ae_categoriesList");
+      if(!box) return;
+      box.innerHTML = categories.filter(c => c.enabled !== false).map(c => `
+        <label class="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-2 rounded-[1.2rem] cursor-pointer">
+          <input type="checkbox" class="ae-category-check accent-red-500" value="${c.id}" ${selected.includes(c.id)?'checked':''}>
+          <span class="text-xs font-bold">${escapeHtml(c.name)}</span>
+        </label>
+      `).join('') || `<div class="text-xs text-gray-400 font-bold">لا توجد أقسام</div>`;
+    }
+
+    function getSelectedAdCategories(){
+      return [...document.querySelectorAll(".ae-category-check:checked")].map(el => el.value);
+    }
+
+    function populateAdProductsSliderChecklist(selected=[]){
+      const box = document.getElementById('ae_productsSliderList');
+      if(!box) return;
+      box.innerHTML = products.map(p => `
+        <label class="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-2 rounded-[1.2rem] cursor-pointer">
+          <input type="checkbox" class="ae-product-slider-check accent-red-500" value="${p.__key}" ${selected.includes(p.__key)?'checked':''}>
+          <span class="text-xs font-bold">${escapeHtml(p.name)}</span>
+        </label>
+      `).join('') || `<div class="text-xs text-gray-400 font-bold">لا توجد منتجات</div>`;
+    }
+
+    function getSelectedAdProductsSliderKeys(){
+      return [...document.querySelectorAll('.ae-product-slider-check:checked')].map(el => el.value);
+    }
+
+    function toggleAdDurationFields(){
+      const inf = document.getElementById("ae_infinite").checked;
+      ["ae_minutes","ae_days","ae_months"].forEach(id => {
+        const el = document.getElementById(id);
+        el.disabled = inf;
+      });
+    }
+
+    function toggleAdFields(){
+      const type = document.getElementById("ae_type").value;
+      document.getElementById("adWebWrap").classList.toggle("hidden", type !== "web");
+      document.getElementById("adJsonWrap").classList.toggle("hidden", type !== "json");
+      document.getElementById("adImageWrap").classList.toggle("hidden", type !== "image");
+      document.getElementById("adImagesSliderWrap").classList.toggle("hidden", type !== "images_slider");
+      document.getElementById("adProductWrap").classList.toggle("hidden", type !== "product");
+      document.getElementById("adProductsSliderWrap").classList.toggle("hidden", type !== "products_slider");
+    }
+
+    function toggleAdClickActionFields(){
+      const type = document.getElementById("ae_clickActionType").value;
+      document.getElementById("aeClickLinkWrap").classList.toggle("hidden", type !== "link");
+      document.getElementById("aeClickCategoryWrap").classList.toggle("hidden", type !== "category");
+      document.getElementById("aeClickProductWrap").classList.toggle("hidden", type !== "product");
+    }
+
+    function toggleAdCategoryModeFields(){
+      const mode = document.getElementById("ae_categoryMode").value;
+      document.getElementById("aeSelectedCategoriesWrap").classList.toggle("hidden", mode !== "selected");
+    }
+
+    function addSlideBuilder(data=null){
+      adSlidesBuilder.push({
+        id: data?.id || uid("slide"),
+        src: data?.src || "",
+        clickAction: normalizeAdClickAction(data?.clickAction)
+      });
+      renderAdSlidesBuilder();
+    }
+
+    function deleteSlideBuilder(id){
+      adSlidesBuilder = adSlidesBuilder.filter(s => s.id !== id);
+      delete adSlideFiles[id];
+      renderAdSlidesBuilder();
+    }
+
+    function updateSlideBuilder(id, key, value){
+      const slide = adSlidesBuilder.find(s => s.id === id);
+      if(!slide) return;
+      if(key === "clickAction"){
+        slide.clickAction = {...slide.clickAction, ...value};
+      }else{
+        slide[key] = value;
+      }
+    }
+
+    function setSlideBuilderFile(id, input){
+      if(input.files && input.files[0]){
+        adSlideFiles[id] = input.files[0];
+        showToast("تم اختيار صورة للسلايدر","success");
+      }
+    }
+
+    function appendSlidesFromFiles(){
+      const input = document.getElementById("ae_slidesFiles");
+      const files = [...(input.files || [])];
+      if(!files.length){
+        showToast("اختر صورًا أولاً","error");
+        return;
+      }
+      files.forEach(file => {
+        const id = uid("slide");
+        adSlidesBuilder.push({
+          id,
+          src:"",
+          clickAction:{type:"none",link:"",categoryId:"",productKey:""}
+        });
+        adSlideFiles[id] = file;
+      });
+      input.value = "";
+      renderAdSlidesBuilder();
+    }
+
+    function renderSlideActionFields(slide){
+      const action = normalizeAdClickAction(slide.clickAction);
+      return `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <select onchange="updateSlideBuilder('${slide.id}','clickAction',{type:this.value}); renderAdSlidesBuilder();" class="w-full bg-gray-50 border border-gray-200 py-3 px-4 text-sm font-bold">
+            <option value="none" ${action.type==='none'?'selected':''}>بدون إجراء</option>
+            <option value="link" ${action.type==='link'?'selected':''}>رابط</option>
+            <option value="category" ${action.type==='category'?'selected':''}>قسم</option>
+            <option value="product" ${action.type==='product'?'selected':''}>منتج</option>
+          </select>
+          ${action.type === "link" ? `
+            <input value="${escapeHtml(action.link || "")}" oninput="updateSlideBuilder('${slide.id}','clickAction',{link:this.value})" placeholder="https://..." class="w-full bg-gray-50 border border-gray-200 py-3 px-4 text-sm font-bold">
+          ` : ''}
+          ${action.type === "category" ? `
+            <select onchange="updateSlideBuilder('${slide.id}','clickAction',{categoryId:this.value})" class="w-full bg-gray-50 border border-gray-200 py-3 px-4 text-sm font-bold">
+              ${categories.filter(c=>c.enabled!==false).map(c => `<option value="${c.id}" ${action.categoryId===c.id?'selected':''}>${escapeHtml(c.name)}</option>`).join('')}
+            </select>
+          ` : ''}
+          ${action.type === "product" ? `
+            <select onchange="updateSlideBuilder('${slide.id}','clickAction',{productKey:this.value})" class="w-full bg-gray-50 border border-gray-200 py-3 px-4 text-sm font-bold">
+              ${products.map(p => `<option value="${p.__key}" ${action.productKey===p.__key?'selected':''}>${escapeHtml(p.name)}</option>`).join('')}
+            </select>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderAdSlidesBuilder(){
+      const box = document.getElementById("ae_slidesBuilderList");
+      if(!box) return;
+      box.innerHTML = adSlidesBuilder.map((slide, index) => `
+        <div class="bg-white border border-gray-200 rounded-[1.5rem] p-4">
+          <div class="flex items-center justify-between mb-3">
+            <span class="status-badge bg-gray-100 text-gray-700">صورة ${index + 1}</span>
+            <button type="button" onclick="deleteSlideBuilder('${slide.id}')" class="w-9 h-9 bg-red-50 text-red-600 rounded-full"><i class="fas fa-trash"></i></button>
+          </div>
+
+          <div class="space-y-3">
+            <input value="${escapeHtml(slide.src || "")}" oninput="updateSlideBuilder('${slide.id}','src',this.value)" placeholder="رابط الصورة" class="w-full bg-gray-50 border border-gray-200 py-3 px-4 text-sm font-bold" style="direction:ltr">
+            <input type="file" accept="image/*" onchange="setSlideBuilderFile('${slide.id}', this)" class="w-full bg-gray-50 border border-gray-200 py-3 px-4 text-sm font-bold">
+            <div class="bg-white border border-gray-200 rounded-[1.25rem] p-3">
+              <label class="text-xs font-bold text-gray-500 block mb-2">وظيفة هذه الصورة عند الضغط</label>
+              ${renderSlideActionFields(slide)}
+            </div>
+          </div>
+        </div>
+      `).join('') || `<div class="bg-white border rounded-[1.5rem] p-6 text-center text-gray-400 font-bold">لا توجد صور في السلايدر بعد</div>`;
+    }
+
+    function renderMiddleJsonBlocks(list){
+      const arr = normalizeMiddleJson(list || []);
+      if(!arr.length) return "";
+
+      return arr.map(item => {
+        if(item.type === "note"){
+          const styleMap = {
+            info: "bg-blue-50 border-blue-200 text-blue-700",
+            success: "bg-green-50 border-green-200 text-green-700",
+            error: "bg-red-50 border-red-200 text-red-700",
+            warning: "bg-amber-50 border-amber-200 text-amber-700"
+          };
+          const cls = styleMap[item.style] || styleMap.info;
+          return `<div class="border rounded-[1.5rem] p-4 text-sm font-bold ${cls}">${escapeHtml(item.text)}</div>`;
+        }
+
+        if(item.type === "image"){
+          return `
+            <div class="bg-white border border-gray-200 rounded-[1.5rem] p-3 overflow-hidden">
+              <img src="${escapeHtml(item.src || 'https://via.placeholder.com/600?text=Image')}" class="w-full rounded-[1.25rem] object-cover" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/600?text=Image'">
+              ${item.caption ? `<div class="text-xs text-gray-500 font-bold text-center mt-2">${escapeHtml(item.caption)}</div>` : ''}
+            </div>
+          `;
+        }
+
+        if(item.type === "button"){
+          return `<button type="button" class="w-full py-3 bg-gray-900 text-white font-bold rounded-full">${escapeHtml(item.label || 'زر')}</button>`;
+        }
+
+        if(item.type === "html"){
+          return `
+            <div class="bg-white border border-gray-200 rounded-[1.5rem] overflow-hidden">
+              <iframe data-auto-resize="1" sandbox="allow-scripts allow-popups allow-forms"
+                srcdoc="${escapeHtml(item.html || '')}"
+                class="middle-render-frame"></iframe>
+            </div>
+          `;
+        }
+
+        if(item.type === "card"){
+          return `
+            <div class="bg-white border border-gray-200 rounded-[1.5rem] p-4">
+              ${item.title ? `<div class="font-bold text-sm mb-1 text-gray-800">${escapeHtml(item.title)}</div>` : ''}
+              <div class="text-sm text-gray-600 whitespace-pre-line">${escapeHtml(item.text || "")}</div>
+            </div>
+          `;
+        }
+
+        if(item.type === "grid"){
+          const cols = Math.min(Math.max(Number(item.columns || 2),1),3);
+          const items = Array.isArray(item.items) ? item.items : [];
+          return `
+            <div class="grid ${cols===1?'grid-cols-1':cols===2?'grid-cols-2':'grid-cols-3'} gap-3">
+              ${items.map(x => `
+                <div class="bg-white border border-gray-200 rounded-[1.5rem] p-4">
+                  ${x.title ? `<div class="font-bold text-sm mb-1 text-gray-800">${escapeHtml(x.title)}</div>` : ''}
+                  <div class="text-sm text-gray-600 whitespace-pre-line">${escapeHtml(x.text || "")}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        return `
+          <div class="bg-white border border-gray-200 rounded-[1.5rem] p-4">
+            ${item.title ? `<div class="font-bold text-sm mb-1 text-gray-800">${escapeHtml(item.title)}</div>` : ''}
+            <div class="text-sm text-gray-600 whitespace-pre-line">${escapeHtml(item.text || "")}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAdProductCard(product, compact=false){
+      if(!product) return `<div class="p-4 text-center text-gray-400 font-bold">المنتج غير موجود</div>`;
+      return `
+        <div class="${compact ? 'ad-product-item' : 'p-3'}">
+          <div class="bg-white p-3 rounded-[2rem] border border-gray-100 relative h-full">
+            <img src="${escapeHtml(product.image)}" class="w-full h-40 object-cover rounded-[1.5rem] mb-2 p-1" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/500?text=No+Image'">
+            <h3 class="font-bold text-sm mb-1 truncate text-gray-800">${escapeHtml(product.name)}</h3>
+            <span class="text-red-500 font-bold text-sm">${Number(product.price || 0).toFixed(2)} ₪</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAdCard(ad){
+      const display = normalizeAdDisplay(ad.display);
+      const cardClasses = `ad-card ${display.showBorder ? '' : 'ad-no-border'}`;
+
+      if(ad.type === "product"){
+        const product = products.find(p => p.__key === ad.productKey);
+        return `
+          <div class="${cardClasses}">
+            ${display.showBadge ? `<div class="ad-badge"><i class="fas fa-bullhorn"></i> ممول</div>` : ''}
+            ${renderAdProductCard(product)}
+          </div>
+        `;
+      }
+
+      if(ad.type === "products_slider"){
+        const list = (ad.productKeys || []).map(k => products.find(p => p.__key === k)).filter(Boolean);
+        return `
+          <div class="${cardClasses}">
+            ${display.showBadge ? `<div class="ad-badge"><i class="fas fa-bullhorn"></i> ممول</div>` : ''}
+            <div class="ad-products-track">${list.map(p => renderAdProductCard(p, true)).join('')}</div>
+          </div>
+        `;
+      }
+
+      if(ad.type === "image"){
+        return `
+          <div class="${cardClasses}">
+            ${display.showBadge ? `<div class="ad-badge"><i class="fas fa-bullhorn"></i> ممول</div>` : ''}
+            <img src="${escapeHtml(ad.image || 'https://via.placeholder.com/800x400?text=Ad')}" class="w-full block object-cover max-h-[420px]" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/800x400?text=Ad'">
+          </div>
+        `;
+      }
+
+      if(ad.type === "images_slider"){
+        return `
+          <div class="${cardClasses}">
+            ${display.showBadge ? `<div class="ad-badge"><i class="fas fa-bullhorn"></i> ممول</div>` : ''}
+            <div class="ad-slider-track">
+              ${(ad.slides || []).map(slide => `
+                <div class="ad-slide"><img src="${escapeHtml(slide.src)}" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/800x400?text=Ad'"></div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      if(ad.type === "json"){
+        return `
+          <div class="${cardClasses}">
+            ${display.showBadge ? `<div class="ad-badge"><i class="fas fa-bullhorn"></i> ممول</div>` : ''}
+            <div class="p-3">
+              ${renderMiddleJsonBlocks(ad.json)}
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="${cardClasses}">
+          ${display.showBadge ? `<div class="ad-badge"><i class="fas fa-bullhorn"></i> ممول</div>` : ''}
+          <div class="ad-render-wrap">
+            <iframe data-auto-resize="1" sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+              srcdoc="${escapeHtml(ad.code || '')}"></iframe>
+          </div>
+        </div>
+      `;
+    }
+
+    function setupAutoIframeSize(){
+      const frames = document.querySelectorAll('iframe[data-auto-resize="1"]');
+      frames.forEach(frame => {
+        const resize = () => {
+          try{
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            if(!doc) return;
+            const body = doc.body;
+            const html = doc.documentElement;
+            const h = Math.max(
+              body ? body.scrollHeight : 0,
+              body ? body.offsetHeight : 0,
+              html ? html.scrollHeight : 0,
+              html ? html.offsetHeight : 0,
+              html ? html.clientHeight : 0
+            );
+            if(h > 0){
+              frame.style.height = h + 'px';
+              frame.style.minHeight = h + 'px';
+            }
+          }catch(err){}
+        };
+        frame.onload = () => {
+          resize();
+          setTimeout(resize, 100);
+          setTimeout(resize, 300);
+          setTimeout(resize, 800);
+        };
+      });
+    }
+
+    function openAdEditor(key){
+      if(!adminSession || Date.now() > adminSession.expiresAt){
+        showToast("سجّل الدخول أولاً","error");
+        return;
+      }
+
+      editingAdKey = key || null;
+      adSlidesBuilder = [];
+      adSingleImageFile = null;
+      adSlideFiles = {};
+      document.getElementById("ae_imageFile").value = "";
+      document.getElementById("ae_slidesFiles").value = "";
+
+      populateAdProductDropdown();
+      populateAdClickProductDropdown();
+      populateAdClickCategoryDropdown();
+      populateAdCategoriesChecklist([]);
+      populateAdProductsSliderChecklist([]);
+
+      if(!key){
+        document.getElementById("adEditorTitle").innerText = "إضافة إعلان";
+        document.getElementById("ae_name").value = "";
+        document.getElementById("ae_type").value = "web";
+        document.getElementById("ae_span").value = "1";
+        document.getElementById("ae_position").value = "3";
+        document.getElementById("ae_minutes").value = "0";
+        document.getElementById("ae_days").value = "0";
+        document.getElementById("ae_months").value = "0";
+        document.getElementById("ae_infinite").checked = false;
+        document.getElementById("ae_enabled").checked = true;
+        document.getElementById("ae_showBadge").checked = true;
+        document.getElementById("ae_showBorder").checked = true;
+        document.getElementById("ae_code").value = "";
+        document.getElementById("ae_json").value = "[]";
+        document.getElementById("ae_image").value = "";
+        document.getElementById("adPreview").innerHTML = "";
+        document.getElementById("ae_clickActionType").value = "none";
+        document.getElementById("ae_clickLink").value = "";
+        document.getElementById("ae_categoryMode").value = "all";
+        if(products.length){
+          document.getElementById("ae_productKey").value = products[0].__key;
+          document.getElementById("ae_clickProductKey").value = products[0].__key;
+        }
+      }else{
+        const ad = remoteAdsMap[key] || {};
+        const clickAction = normalizeAdClickAction(ad.clickAction);
+        const display = normalizeAdDisplay(ad.display);
+        const visibility = normalizeAdVisibility(ad.visibility);
+
+        document.getElementById("adEditorTitle").innerText = "تعديل إعلان";
+        document.getElementById("ae_name").value = ad.name || "";
+        document.getElementById("ae_type").value = ad.type || "web";
+        document.getElementById("ae_span").value = String(ad.span || "1");
+        document.getElementById("ae_position").value = String(ad.position || 3);
+        document.getElementById("ae_minutes").value = "0";
+        document.getElementById("ae_days").value = "0";
+        document.getElementById("ae_months").value = "0";
+        document.getElementById("ae_infinite").checked = ad.infinite === true;
+        document.getElementById("ae_enabled").checked = ad.enabled !== false;
+        document.getElementById("ae_showBadge").checked = display.showBadge;
+        document.getElementById("ae_showBorder").checked = display.showBorder;
+        document.getElementById("ae_code").value = ad.code || "";
+        document.getElementById("ae_json").value = JSON.stringify(ad.json || [], null, 2);
+        document.getElementById("ae_image").value = ad.image || "";
+        document.getElementById("ae_categoryMode").value = visibility.categoryMode || "all";
+        populateAdCategoriesChecklist(visibility.categories || []);
+        populateAdProductDropdown(ad.productKey || "");
+        populateAdProductsSliderChecklist(Array.isArray(ad.productKeys) ? ad.productKeys : []);
+        document.getElementById("ae_clickActionType").value = clickAction.type || "none";
+        document.getElementById("ae_clickLink").value = clickAction.link || "";
+        populateAdClickCategoryDropdown(clickAction.categoryId || "");
+        populateAdClickProductDropdown(clickAction.productKey || "");
+
+        adSlidesBuilder = normalizeAdSlides(ad.slides || []);
+        renderAdSlidesBuilder();
+        previewAdEditor();
+      }
+
+      renderAdSlidesBuilder();
+      toggleAdDurationFields();
+      toggleAdFields();
+      toggleAdClickActionFields();
+      toggleAdCategoryModeFields();
+      document.getElementById("adEditorModal").classList.remove("hidden");
+    }
+
+    function closeAdEditor(){
+      document.getElementById("adEditorModal").classList.add("hidden");
+      editingAdKey = null;
+      adSlidesBuilder = [];
+      adSingleImageFile = null;
+      adSlideFiles = {};
+    }
+
+    function previewAdEditor(){
+      const type = document.getElementById("ae_type").value;
+      const preview = document.getElementById("adPreview");
+      const fakeAd = {
+        __key: 'preview',
+        type,
+        span: document.getElementById('ae_span').value || '1',
+        code: document.getElementById('ae_code').value || '',
+        json: safeParseJSON(document.getElementById('ae_json').value || '[]', []),
+        image: document.getElementById('ae_image').value || '',
+        slides: adSlidesBuilder.map(s => ({src:s.src || 'https://via.placeholder.com/800x400?text=Slide', clickAction:normalizeAdClickAction(s.clickAction), id:s.id})),
+        productKey: document.getElementById('ae_productKey').value || '',
+        productKeys: getSelectedAdProductsSliderKeys(),
+        clickAction: {
+          type: document.getElementById('ae_clickActionType').value || 'none',
+          link: document.getElementById('ae_clickLink').value || '',
+          categoryId: document.getElementById('ae_clickCategoryId').value || '',
+          productKey: document.getElementById('ae_clickProductKey').value || ''
+        },
+        display: {
+          showBadge: document.getElementById('ae_showBadge').checked,
+          showBorder: document.getElementById('ae_showBorder').checked
+        }
+      };
+
+      preview.innerHTML = renderAdCard(fakeAd);
+      setupAutoIframeSize();
+    }
+
+    async function uploadAdSlidesIfNeeded(slides){
+      const out = [];
+      for(const slide of slides){
+        const clone = {
+          id: slide.id,
+          src: slide.src || "",
+          clickAction: normalizeAdClickAction(slide.clickAction)
+        };
+        if(adSlideFiles[slide.id]){
+          clone.src = await uploadFileToStorage(adSlideFiles[slide.id], "ad_slides");
+        }
+        out.push(clone);
+      }
+      return out.filter(x => x.src);
+    }
+
+    async function saveAdFromEditor(){
+      const name = (document.getElementById("ae_name").value || "").trim();
+      const type = document.getElementById("ae_type").value;
+      const span = document.getElementById("ae_span").value || "1";
+      const position = Number(document.getElementById("ae_position").value || 1);
+      const minutes = Number(document.getElementById("ae_minutes").value || 0);
+      const days = Number(document.getElementById("ae_days").value || 0);
+      const months = Number(document.getElementById("ae_months").value || 0);
+      const infinite = document.getElementById("ae_infinite").checked;
+      const enabled = document.getElementById("ae_enabled").checked;
+      const code = document.getElementById("ae_code").value || "";
+      let image = document.getElementById("ae_image").value || "";
+      const productKey = document.getElementById("ae_productKey").value || "";
+      const productKeys = getSelectedAdProductsSliderKeys();
+      const json = safeParseJSON(document.getElementById("ae_json").value || "[]", null);
+      const showBadge = document.getElementById('ae_showBadge').checked;
+      const showBorder = document.getElementById('ae_showBorder').checked;
+      const categoryMode = document.getElementById("ae_categoryMode").value || "all";
+      const selectedCategories = getSelectedAdCategories();
+
+      const clickAction = {
+        type: document.getElementById("ae_clickActionType").value || "none",
+        link: (document.getElementById("ae_clickLink").value || "").trim(),
+        categoryId: document.getElementById("ae_clickCategoryId").value || "",
+        productKey: document.getElementById("ae_clickProductKey").value || ""
+      };
+
+      if(name.length < 2){
+        showToast("اسم الإعلان مطلوب","error");
+        return;
+      }
+      if(position < 1){
+        showToast("ترتيب الإعلان غير صحيح","error");
+        return;
+      }
+      if(type === "json" && !Array.isArray(json)){
+        showToast("JSON الإعلان غير صحيح","error");
+        return;
+      }
+      if(type === "web" && !code.trim()){
+        showToast("كود الإعلان مطلوب","error");
+        return;
+      }
+      if(type === "product" && !productKey){
+        showToast("اختر منتجًا","error");
+        return;
+      }
+      if(type === "products_slider" && !productKeys.length){
+        showToast("اختر منتجًا واحدًا على الأقل للسلايدر","error");
+        return;
+      }
+      if(categoryMode === "selected" && !selectedCategories.length){
+        showToast("اختر قسمًا واحدًا على الأقل","error");
+        return;
+      }
+      if(clickAction.type === "link" && !clickAction.link){
+        showToast("أدخل رابط التحويل","error");
+        return;
+      }
+      if(clickAction.type === "category" && !clickAction.categoryId){
+        showToast("اختر قسم التحويل","error");
+        return;
+      }
+      if(clickAction.type === "product" && !clickAction.productKey){
+        showToast("اختر منتج التحويل","error");
+        return;
+      }
+
+      setLoading(true);
+      try{
+        if(type === "image" && document.getElementById("ae_imageFile").files?.[0]){
+          image = await uploadFileToStorage(document.getElementById("ae_imageFile").files[0], "ad_images");
+        }
+
+        const slides = type === "images_slider" ? await uploadAdSlidesIfNeeded(adSlidesBuilder) : [];
+
+        if(type === "image" && !image.trim()){
+          showToast("أدخل رابط الصورة أو ارفعها من الجهاز","error");
+          setLoading(false);
+          return;
+        }
+
+        if(type === "images_slider" && !slides.length){
+          showToast("أضف صورة واحدة على الأقل للسلايدر","error");
+          setLoading(false);
+          return;
+        }
+
+        const now = Date.now();
+        const durationMs = (minutes * 60 * 1000) + (days * 24 * 60 * 60 * 1000) + (months * 30 * 24 * 60 * 60 * 1000);
+        const endAt = infinite ? 0 : (durationMs > 0 ? now + durationMs : 0);
+
+        const data = {
+          name,
+          type,
+          span,
+          position,
+          enabled,
+          infinite,
+          code: type === "web" ? code : "",
+          json: type === "json" ? normalizeMiddleJson(json) : [],
+          image: type === "image" ? image : "",
+          slides: type === "images_slider" ? slides : [],
+          productKey: type === "product" ? productKey : "",
+          productKeys: type === "products_slider" ? productKeys : [],
+          display: { showBadge, showBorder },
+          clickAction,
+          visibility: {
+            categoryMode,
+            categories: categoryMode === "selected" ? selectedCategories : []
+          },
+          startAt: editingAdKey ? (remoteAdsMap[editingAdKey]?.startAt || now) : now,
+          endAt,
+          updatedAt: now
+        };
+
+        if(editingAdKey){
+          await rtdb.ref(`${PATH_ADS}/${editingAdKey}`).update(data);
+        }else{
+          await rtdb.ref(PATH_ADS).push(data);
+        }
+
+        showToast("تم حفظ الإعلان","success");
+        closeAdEditor();
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل حفظ الإعلان","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function toggleAdVisibility(key, enabled){
+      setLoading(true);
+      try{
+        await rtdb.ref(`${PATH_ADS}/${key}/enabled`).set(!!enabled);
+        showToast("تم تحديث الإعلان","success");
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل تحديث الإعلان","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function deleteAd(key){
+      if(!confirm("حذف الإعلان؟")) return;
+      setLoading(true);
+      try{
+        await rtdb.ref(`${PATH_ADS}/${key}`).remove();
+        showToast("تم حذف الإعلان","success");
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل حذف الإعلان","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    function populateCommunityPostDropdowns(){
+      const categorySel = document.getElementById("cpe_category");
+      const countrySel = document.getElementById("cpe_country");
+      if(categorySel){
+        categorySel.innerHTML = categories.filter(c => c.enabled !== false).map(c =>
+          `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)} (${escapeHtml(c.id)})</option>`
+        ).join('');
+      }
+      if(countrySel){
+        countrySel.innerHTML = `
+          <option value="GLOBAL">عالمي</option>
+          ${countries.filter(c => c.enabled !== false).map(c =>
+            `<option value="${escapeHtml(c.code)}">${escapeHtml(c.name)}</option>`
+          ).join('')}
+        `;
+      }
+    }
+
+    function toggleCommunityPostModeFields(){
+      const mode = document.getElementById("cpe_detailsMode").value;
+      document.getElementById("cpe_whatsappWrap").classList.toggle("hidden", mode !== "whatsapp");
+    }
+
+    function openCommunityPostEditor(key){
+      if(!adminSession || Date.now() > adminSession.expiresAt){
+        showToast("سجّل الدخول أولاً","error");
+        return;
+      }
+
+      editingCommunityPostKey = key || null;
+      document.getElementById("cpe_imagesFiles").value = "";
+      populateCommunityPostDropdowns();
+
+      if(!key){
+        document.getElementById("communityPostEditorTitle").innerText = "إضافة منشور أدمن";
+        document.getElementById("cpe_title").value = "";
+        document.getElementById("cpe_desc").value = "";
+        document.getElementById("cpe_price").value = "";
+        document.getElementById("cpe_imagesUrls").value = "";
+        document.getElementById("cpe_detailsMode").value = "payment";
+        document.getElementById("cpe_whatsappPrefix").value = "972";
+        document.getElementById("cpe_whatsappNumber").value = "";
+        if(categories.length) document.getElementById("cpe_category").value = categories[0].id;
+        document.getElementById("cpe_country").value = "GLOBAL";
+        document.getElementById("communityPostPreview").innerHTML = "";
+      }else{
+        const post = communityPosts.find(p => p.key === key && p.source === "admin");
+        if(!post) return;
+
+        document.getElementById("communityPostEditorTitle").innerText = "تعديل منشور أدمن";
+        document.getElementById("cpe_title").value = post.title || "";
+        document.getElementById("cpe_desc").value = post.desc || "";
+        document.getElementById("cpe_price").value = Number(post.price || 0);
+        document.getElementById("cpe_imagesUrls").value = (post.images || []).join("\n");
+        document.getElementById("cpe_detailsMode").value = post.detailsMode || "payment";
+        document.getElementById("cpe_whatsappPrefix").value = post.whatsappPrefix || "972";
+        document.getElementById("cpe_whatsappNumber").value = post.whatsappNumber || "";
+        document.getElementById("cpe_category").value = post.categoryId || "";
+        document.getElementById("cpe_country").value = post.countryCode || "GLOBAL";
+        previewCommunityPostEditor();
+      }
+
+      toggleCommunityPostModeFields();
+      document.getElementById("communityPostEditorModal").classList.remove("hidden");
+    }
+
+    function closeCommunityPostEditor(){
+      document.getElementById("communityPostEditorModal").classList.add("hidden");
+      editingCommunityPostKey = null;
+    }
+
+    function readCommunityPostUrlsFromTextarea(){
+      return String(document.getElementById("cpe_imagesUrls").value || "")
+        .split("\n")
+        .map(x => x.trim())
+        .filter(Boolean);
+    }
+
+    async function uploadMultipleCommunityFiles(files){
+      const out = [];
+      for(const file of files){
+        const url = await uploadFileToStorage(file, "community_posts");
+        out.push(url);
+      }
+      return out;
+    }
+
+    function previewCommunityPostEditor(){
+      const title = document.getElementById("cpe_title").value || "";
+      const desc = document.getElementById("cpe_desc").value || "";
+      const price = Number(document.getElementById("cpe_price").value || 0);
+      const mode = document.getElementById("cpe_detailsMode").value || "payment";
+      const images = readCommunityPostUrlsFromTextarea();
+      const box = document.getElementById("communityPostPreview");
+
+      box.innerHTML = `
+        <div class="bg-white border border-gray-200 rounded-[1.5rem] p-4">
+          ${images.length ? `
+            <div class="overflow-x-auto flex gap-2 pb-2 mb-3">
+              ${images.map(img => `<img src="${escapeHtml(img)}" class="thumb" onerror="this.style.display='none'">`).join('')}
+            </div>
+          ` : `<div class="text-xs text-gray-400 font-bold mb-3">لا توجد صور بعد</div>`}
+          <div class="font-bold text-base">${escapeHtml(title || "عنوان المنشور")}</div>
+          <div class="text-red-600 font-bold mt-1">${price > 0 ? price.toFixed(2) + " ₪" : "بدون سعر"}</div>
+          <div class="text-sm text-gray-600 whitespace-pre-line mt-2">${escapeHtml(desc || "الوصف سيظهر هنا")}</div>
+          <div class="mt-3">
+            ${mode === "payment"
+              ? `<div class="inline-flex bg-blue-50 text-blue-700 border border-blue-200 px-3 py-2 rounded-full text-xs font-bold">يعرض معلومات الدفع الحالية للموقع</div>`
+              : `<div class="inline-flex bg-green-50 text-green-700 border border-green-200 px-3 py-2 rounded-full text-xs font-bold">يعرض زر واتساب</div>`
+            }
+          </div>
+        </div>
+      `;
+    }
+
+    async function saveCommunityPostFromEditor(){
+      const title = (document.getElementById("cpe_title").value || "").trim();
+      const desc = (document.getElementById("cpe_desc").value || "").trim();
+      const price = Number(document.getElementById("cpe_price").value || 0);
+      const categoryId = document.getElementById("cpe_category").value || "";
+      const countryCode = document.getElementById("cpe_country").value || "GLOBAL";
+      const detailsMode = document.getElementById("cpe_detailsMode").value || "payment";
+      const whatsappPrefix = document.getElementById("cpe_whatsappPrefix").value || "972";
+      const whatsappNumber = (document.getElementById("cpe_whatsappNumber").value || "").replace(/\D/g, "");
+      const textareaImages = readCommunityPostUrlsFromTextarea();
+      const files = [...(document.getElementById("cpe_imagesFiles").files || [])];
+
+      if(title.length < 2){
+        showToast("عنوان المنشور مطلوب","error");
+        return;
+      }
+      if(!categoryId){
+        showToast("اختر القسم","error");
+        return;
+      }
+      if(detailsMode === "whatsapp" && whatsappNumber.length < 7){
+        showToast("رقم الواتساب غير صحيح","error");
+        return;
+      }
+
+      setLoading(true);
+      try{
+        const uploadedImages = files.length ? await uploadMultipleCommunityFiles(files) : [];
+        const images = [...textareaImages, ...uploadedImages];
+        if(!images.length){
+          showToast("أضف صورة واحدة على الأقل","error");
+          setLoading(false);
+          return;
+        }
+
+        const now = Date.now();
+        const data = {
+          source: "admin",
+          title,
+          desc,
+          price,
+          categoryId,
+          countryCode,
+          images,
+          detailsMode,
+          whatsappPrefix,
+          whatsappNumber,
+          approvalStatus: "approved",
+          createdAt: editingCommunityPostKey ? (communityPosts.find(p => p.key === editingCommunityPostKey)?.createdAt || now) : now,
+          updatedAt: now
+        };
+
+        if(editingCommunityPostKey){
+          await rtdb.ref(`${PATH_COMMUNITY_POSTS}/${editingCommunityPostKey}`).update(data);
+        }else{
+          await rtdb.ref(PATH_COMMUNITY_POSTS).push(data);
+        }
+
+        showToast("تم حفظ منشور الأدمن","success");
+        closeCommunityPostEditor();
+        await loadFromFirebase();
+      }catch(e){
+        console.error(e);
+        showToast("فشل حفظ منشور الأدمن","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function bootApp(){
+      setLoading(true);
+      try{
+        try{
+          const s = JSON.parse(sessionStorage.getItem(ADMIN_SESSION_KEY) || "null");
+          if(s && s.expiresAt && Date.now() < s.expiresAt) adminSession = s;
+          else adminSession = null;
+        }catch{
+          adminSession = null;
+        }
+
+        await ensureAdminSettings();
+
+        if(adminSession && adminSession.expiresAt && Date.now() < adminSession.expiresAt){
+          await enterAdmin();
+        }else{
+          document.getElementById("adminLoginModal").classList.remove("hidden");
+        }
+      }catch(e){
+        console.error(e);
+        showToast("تعذر تشغيل لوحة الأدمن","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    window.addEventListener("load", bootApp);
+  </script>
+</body>
+</html>
