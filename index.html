@@ -1,0 +1,2463 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZERO SHOP</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+
+    *{box-sizing:border-box}
+    body{
+      font-family:'Cairo',sans-serif;
+      background:#f8f9fa;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent
+    }
+
+    .view-section{display:none;min-height:100vh}
+    .view-section.active{display:block}
+
+    .loader{
+      border:4px solid #f3f3f3;
+      border-top:4px solid #ef4444;
+      border-radius:50%;
+      width:46px;height:46px;
+      animation:spin .8s linear infinite
+    }
+    @keyframes spin{
+      0%{transform:rotate(0)}
+      100%{transform:rotate(360deg)}
+    }
+
+    .product-card,.cart-item-card,.payment-option,.drawer-link{
+      transition:all .2s ease;
+      border-radius:2rem!important
+    }
+
+    .product-card{
+      cursor:pointer;
+      border:2px solid transparent;
+      position:relative;
+      background:#fff
+    }
+    .product-card.selected{
+      border-color:#ef4444;
+      background:#fffafa
+    }
+    .product-card:active{transform:scale(.97)}
+
+    .discount-badge{
+      position:absolute;
+      top:10px;
+      right:10px;
+      background:#ef4444;
+      color:#fff;
+      font-size:10px;
+      font-weight:800;
+      padding:5px 10px;
+      border-radius:999px;
+      z-index:10;
+      display:flex;
+      align-items:center;
+      gap:4px
+    }
+
+    .cart-item-card{
+      border:2px solid transparent;
+      background:#fff
+    }
+    .cart-item-card.selected{
+      border-color:#ef4444;
+      background:#fef2f2
+    }
+
+    .info-card{
+      border:1px solid #eee;
+      border-radius:2rem!important;
+      background:#fff;
+      overflow:hidden
+    }
+
+    .no-scrollbar::-webkit-scrollbar{display:none}
+
+    .toast-notification{animation:slideUp .3s ease-out forwards}
+    @keyframes slideUp{
+      from{transform:translate(-50%,100%);opacity:0}
+      to{transform:translate(-50%,0);opacity:1}
+    }
+
+    .payment-option{
+      border:2px solid #f3f4f6;
+      background:#fff;
+      cursor:pointer
+    }
+    .payment-option.selected{
+      border-color:#ef4444;
+      background:#fef2f2
+    }
+
+    .modal-overlay{
+      background:rgba(0,0,0,.5);
+      backdrop-filter:blur(4px)
+    }
+
+    .product-img{
+      width:100%;
+      aspect-ratio:1/1;
+      border-radius:1.75rem!important;
+      object-fit:cover;
+      background:#fff
+    }
+
+    .country-icon{
+      width:22px;
+      height:22px;
+      object-fit:cover;
+      border-radius:999px;
+      background:#fff;
+      box-shadow:0 0 0 1px #e5e7eb inset
+    }
+
+    .country-select-modern{position:relative}
+    .country-select-menu{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      left:0;
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:1.5rem;
+      box-shadow:0 20px 40px rgba(0,0,0,.08);
+      padding:10px;
+      z-index:80;
+      max-height:320px;
+      overflow:auto
+    }
+    .country-option-modern{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      width:100%;
+      padding:10px 12px;
+      border-radius:1rem;
+      font-weight:800;
+      font-size:13px;
+      transition:.2s
+    }
+    .country-option-modern:hover{background:#f9fafb}
+    .country-option-modern.active{
+      background:#fef2f2;
+      color:#dc2626
+    }
+
+    .ad-card{
+      background:#fff;
+      border:1px solid #eee;
+      border-radius:2rem;
+      overflow:hidden;
+      position:relative;
+      box-shadow:0 1px 3px rgba(0,0,0,.05)
+    }
+    .ad-card.ad-no-border{
+      border:none!important;
+      box-shadow:none!important;
+      background:transparent!important
+    }
+
+    .ad-badge{
+      position:absolute;
+      top:10px;
+      left:10px;
+      z-index:8;
+      background:#111827;
+      color:#fff;
+      font-size:10px;
+      font-weight:800;
+      padding:5px 10px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      gap:5px
+    }
+
+    .ad-slot-1{grid-column:span 1 / span 1}
+    .ad-slot-2{grid-column:span 2 / span 2}
+    .ad-slot-free{
+      grid-column:1 / -1;
+      background:transparent!important;
+      border:none!important;
+      border-radius:0!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+      padding:0!important
+    }
+
+    .ad-render-wrap{
+      width:100%;
+      min-height:170px;
+      background:#fff;
+      position:relative
+    }
+    .ad-render-wrap iframe{
+      width:100%;
+      border:none;
+      display:block;
+      min-height:170px;
+      background:#fff
+    }
+
+    .ad-click-cover{
+      position:absolute;
+      inset:0;
+      z-index:5;
+      cursor:pointer;
+      background:transparent
+    }
+
+    .ad-slider-shell,.ad-products-shell,.ad-image-shell{
+      position:relative;
+      width:100%;
+      background:#fff;
+      min-height:170px
+    }
+
+    .ad-slider-track,.ad-products-track{
+      display:flex;
+      overflow-x:auto;
+      scroll-snap-type:x mandatory;
+      scroll-behavior:smooth;
+      gap:12px;
+      padding:12px
+    }
+    .ad-slider-track::-webkit-scrollbar,
+    .ad-products-track::-webkit-scrollbar{display:none}
+
+    .ad-slide{
+      min-width:100%;
+      scroll-snap-align:start;
+      position:relative;
+      border-radius:1.5rem;
+      overflow:hidden;
+      background:#f8fafc
+    }
+    .ad-slide img{
+      width:100%;
+      display:block;
+      object-fit:cover;
+      max-height:420px
+    }
+
+    .ad-products-track .ad-product-item{
+      min-width:180px;
+      max-width:180px;
+      scroll-snap-align:start;
+      flex:0 0 180px
+    }
+
+    .ad-nav-btn{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      width:36px;
+      height:36px;
+      border-radius:999px;
+      background:rgba(17,24,39,.82);
+      color:#fff;
+      z-index:7;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:none;
+      cursor:pointer
+    }
+    .ad-nav-btn.prev{right:10px}
+    .ad-nav-btn.next{left:10px}
+
+    .ad-dots{
+      display:flex;
+      justify-content:center;
+      gap:6px;
+      padding:0 12px 12px
+    }
+    .ad-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:#d1d5db;
+      transition:.2s;
+      border:none
+    }
+    .ad-dot.active{
+      width:20px;
+      background:#111827
+    }
+
+    .ad-image-only{
+      width:100%;
+      display:block;
+      object-fit:cover;
+      max-height:420px
+    }
+
+    .middle-render-frame{
+      width:100%;
+      min-height:180px;
+      border:none;
+      background:#fff;
+      display:block
+    }
+
+    .store-title-image,.store-brand-image{
+      max-height:32px;
+      object-fit:contain;
+      display:block
+    }
+
+    .verified-blue{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:20px;
+      height:20px;
+      border-radius:999px;
+      background:#dbeafe;
+      color:#2563eb;
+      font-size:11px
+    }
+    .verified-green{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:20px;
+      height:20px;
+      border-radius:999px;
+      background:#dcfce7;
+      color:#16a34a;
+      font-size:11px
+    }
+
+    .drawer-panel{
+      width:min(86vw,340px);
+      height:100%;
+      background:#fff;
+      border-radius:0 2rem 2rem 0;
+      box-shadow:0 20px 40px rgba(0,0,0,.14);
+      transform:translateX(-110%);
+      transition:.25s
+    }
+    .drawer-panel.open{transform:translateX(0)}
+    .drawer-link:active{transform:scale(.98)}
+
+    .safe-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color:#16a34a;
+      font-size:11px;
+      font-weight:800
+    }
+
+    input,button,select,.rounded-xl,.rounded-2xl,.rounded-3xl{
+      border-radius:2rem!important
+    }
+    textarea{border-radius:1.5rem!important}
+    code{direction:ltr;unicode-bidi:bidi-override}
+
+    @media (max-width:640px){
+      .ad-slot-2,.ad-slot-free{grid-column:span 2 / span 2}
+      .ad-products-track .ad-product-item{
+        min-width:160px;
+        max-width:160px;
+        flex-basis:160px
+      }
+    }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+</head>
+
+<body class="bg-gray-50">
+
+  <div id="loadingOverlay" class="fixed inset-0 bg-white/85 backdrop-blur-sm z-[9999] flex items-center justify-center">
+    <div class="flex flex-col items-center">
+      <div class="loader mb-3"></div>
+      <p class="text-red-500 font-bold">جاري التحميل...</p>
+    </div>
+  </div>
+
+  <div id="drawerOverlay" class="fixed inset-0 z-[9998] hidden">
+    <div class="absolute inset-0 bg-black/40" onclick="closeSideDrawer()"></div>
+    <div id="drawerPanel" class="drawer-panel absolute top-0 left-0 p-4 overflow-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-black text-lg">القائمة</h3>
+        <button onclick="closeSideDrawer()" class="w-10 h-10 bg-gray-100 rounded-full"><i class="fas fa-xmark"></i></button>
+      </div>
+
+      <div id="drawerUserBox" class="bg-gray-50 border border-gray-100 rounded-[1.5rem] p-4 mb-4">
+        <div class="font-bold text-sm text-gray-800" id="drawerUserTitle">مرحباً بك</div>
+        <div class="text-xs text-gray-500 font-bold mt-1" id="drawerUserSub">اختر ما تريد</div>
+      </div>
+
+      <div class="space-y-3">
+        <button id="drawerAccountBtn" onclick="goDrawerAccount()" class="drawer-link w-full flex items-center gap-3 bg-white border border-gray-200 px-4 py-4 font-bold text-sm">
+          <i class="fas fa-user text-gray-700 w-5 text-center"></i>
+          <span id="drawerAccountText">تسجيل الدخول / إنشاء حساب</span>
+        </button>
+
+        <button onclick="window.location.href='login.html?view=profile&tab=main'" class="drawer-link w-full flex items-center gap-3 bg-white border border-gray-200 px-4 py-4 font-bold text-sm">
+          <i class="fas fa-plus text-red-500 w-5 text-center"></i>
+          <span>نشر منتج</span>
+        </button>
+
+        <button onclick="navigateTo('cartView');closeSideDrawer()" class="drawer-link w-full flex items-center gap-3 bg-white border border-gray-200 px-4 py-4 font-bold text-sm">
+          <i class="fas fa-shopping-bag text-gray-700 w-5 text-center"></i>
+          <span>السلة</span>
+        </button>
+
+        <button id="drawerLogoutBtn" onclick="logoutFromDrawer()" class="drawer-link w-full hidden flex items-center gap-3 bg-red-50 border border-red-100 px-4 py-4 font-bold text-sm text-red-600">
+          <i class="fas fa-right-from-bracket w-5 text-center"></i>
+          <span>تسجيل الخروج</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="exitModal" class="fixed inset-0 z-[10000] modal-overlay hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm text-center">
+      <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h3 class="font-bold text-lg mb-2">هل تود الخروج؟</h3>
+      <p class="text-gray-500 text-sm mb-6">سيتم إلغاء طلبك الحالي في حال الخروج من صفحة الدفع.</p>
+      <div class="flex gap-3">
+        <button onclick="closeExitModal()" class="flex-1 py-3 bg-gray-100 font-bold">إلغاء</button>
+        <button onclick="confirmExit()" class="flex-1 py-3 bg-red-500 text-white font-bold">نعم، اخرج</button>
+      </div>
+    </div>
+  </div>
+
+  <section id="storeView" class="view-section active pb-28">
+    <header class="bg-white sticky top-0 z-40 border-b">
+      <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div id="storeLogoWrap" class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-500 overflow-hidden">
+            <i class="fas fa-store"></i>
+          </div>
+
+          <div>
+            <div id="storeTitleWrap" class="text-xl font-bold">ZERO SHOP</div>
+            <div class="text-[11px] text-gray-400 font-bold" id="selectedCountryLabel">الدولة: عالمي</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2" dir="ltr">
+          <button onclick="openSideDrawer()" class="relative p-2">
+            <i class="fas fa-bars text-2xl text-gray-700"></i>
+          </button>
+
+          <button onclick="navigateTo('cartView')" class="relative p-2">
+            <i class="fas fa-shopping-bag text-2xl text-gray-700"></i>
+            <span id="cartCountBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] min-w-[20px] h-5 px-1 flex items-center justify-center rounded-full font-bold">0</span>
+          </button>
+
+          <div id="headerCountryIconWrap" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+            <i class="fas fa-globe text-gray-700"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-4 pb-3">
+        <div class="country-select-modern">
+          <button onclick="toggleCountryDropdown()" id="countryDropdownBtn"
+            class="w-full bg-gray-100 border-none py-3 px-4 flex items-center justify-between font-bold text-sm">
+            <div class="flex items-center gap-2" id="countryDropdownSelected">
+              <i class="fas fa-globe text-gray-600"></i>
+              <span>عالمي</span>
+            </div>
+            <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+          </button>
+          <div id="countryDropdownMenu" class="country-select-menu hidden"></div>
+        </div>
+      </div>
+
+      <div id="categoriesBar" class="flex overflow-x-auto gap-2 px-4 pb-3 no-scrollbar text-sm font-semibold"></div>
+
+      <div class="px-4 pb-3">
+        <div class="relative">
+          <input type="text" id="searchInput" oninput="handleSearch()" placeholder="ابحث عن منتجات أو منشورات..."
+                 class="w-full bg-gray-100 border-none rounded-full py-3 px-10 outline-none focus:ring-2 focus:ring-red-400 text-sm">
+          <i class="fas fa-search absolute right-4 top-4 text-gray-400"></i>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-4 grid grid-cols-2 gap-4" id="productsGrid"></div>
+  </section>
+
+  <section id="detailsView" class="view-section p-4 pb-28">
+    <div class="flex items-center gap-4 mb-6">
+      <button onclick="goBack()" class="w-10 h-10 bg-white shadow rounded-full flex items-center justify-center">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <h2 class="font-bold text-lg">معلومات الشحن والدفع</h2>
+    </div>
+    <div id="detailsContent" class="info-card p-6 shadow-sm"></div>
+  </section>
+
+  <section id="paymentChoiceView" class="view-section p-4 pb-28">
+    <div class="flex items-center gap-4 mb-6">
+      <button onclick="goBack()" class="w-10 h-10 bg-white shadow rounded-full flex items-center justify-center">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <h2 class="font-bold text-lg">اختيار طريقة الدفع</h2>
+    </div>
+
+    <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 mb-4">
+      <div class="flex items-start justify-between mb-5">
+        <div>
+          <p class="text-gray-400 text-xs mb-1">المبلغ المطلوب</p>
+          <div id="paymentChoiceAmount" class="text-3xl font-black text-gray-800">0.00 ₪</div>
+          <p class="text-[11px] text-gray-400 mt-1">اختر الطريقة المناسبة لإتمام الدفع.</p>
+        </div>
+        <div class="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center text-xl">
+          <i class="fas fa-wallet"></i>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div onclick="setPaymentMethod('visa')" data-method="visa" class="payment-option selected p-4 flex flex-col items-center gap-2">
+          <i class="fas fa-credit-card text-2xl text-blue-600"></i>
+          <span class="text-xs font-bold text-gray-700">بيانات</span>
+        </div>
+        <div onclick="setPaymentMethod('usdt')" data-method="usdt" class="payment-option p-4 flex flex-col items-center gap-2">
+          <i class="fas fa-coins text-2xl text-amber-500"></i>
+          <span class="text-xs font-bold text-gray-700">USDT (TRC20)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
+      <h3 class="font-bold mb-3">البيانات المدخلة</h3>
+      <div id="paymentChoiceFieldsPreview" class="space-y-2 text-sm"></div>
+    </div>
+  </section>
+
+  <section id="visaView" class="view-section p-4 pb-28 bg-gray-50">
+    <div class="flex items-center gap-4 mb-6">
+      <button onclick="goBack()" class="w-10 h-10 bg-white shadow rounded-full flex items-center justify-center">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <h2 class="font-bold text-lg">الدفع</h2>
+    </div>
+
+    <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
+      <div class="flex items-start justify-between mb-5">
+        <div>
+          <p class="text-gray-400 text-xs mb-1">المبلغ المطلوب</p>
+          <div id="visaAmount" class="text-3xl font-black text-gray-800">0.00 ₪</div>
+          <p class="text-[11px] text-gray-400 mt-1">أدخل البيانات المطلوبة لإتمام الدفع.</p>
+        </div>
+        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-xl">
+          <i class="fas fa-credit-card"></i>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">الاسم المسجل في الهوية</label>
+          <input id="cardName" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold">
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">رقم الهوية</label>
+          <input id="cardNumber" inputmode="numeric" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold tracking-widest"
+                 placeholder="أدخل الرقم" oninput="formatNationalId(this)">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">تاريخ الفاتورة</label>
+            <input id="cardExp" inputmode="numeric" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold"
+                   placeholder="MM/YY" oninput="formatExp(this)">
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">رقم الفاتورة</label>
+            <input id="cardCvv" inputmode="numeric" class="w-full bg-gray-100 border-none py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold"
+                   placeholder="أدخل الرقم">
+          </div>
+        </div>
+
+        <button onclick="submitVisaPayment()" class="w-full mt-4 py-4 bg-gray-900 text-white rounded-full font-bold shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+          <i class="fas fa-bolt"></i> دفع الآن
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="usdtView" class="view-section p-4 pb-28 bg-gray-50">
+    <div class="flex items-center gap-4 mb-6">
+      <button onclick="handleExitAttempt()" class="w-10 h-10 bg-white shadow rounded-full flex items-center justify-center">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <h2 class="font-bold text-lg">دفع بواسطة USDT (TRC20)</h2>
+    </div>
+
+    <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 text-center">
+      <div class="bg-red-50 text-red-600 inline-block px-4 py-2 rounded-full text-sm font-bold mb-4">
+        <i class="fas fa-clock ml-1"></i>
+        تنتهي الجلسة خلال: <span id="timer">30:00</span>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-[1.5rem] p-4 text-sm font-bold mb-6">
+        <div class="mb-2"><i class="fas fa-circle-info ml-1"></i> يجب الدفع خلال 30 دقيقة حتى يتم التحقق الآلي بنجاح.</div>
+        <div><i class="fas fa-triangle-exclamation ml-1"></i> يجب دفع المبلغ بالضبط كما هو ظاهر أدناه بدون زيادة أو نقصان.</div>
+      </div>
+
+      <div class="mb-6">
+        <p class="text-gray-400 text-sm mb-1">المبلغ المطلوب بالدولار</p>
+        <div class="text-3xl font-black text-gray-800" id="usdtAmount">$0.00</div>
+        <p class="text-[10px] text-gray-400 mt-1">سعر الصرف الحالي: <span id="usdtRateText">1$ = 3.2 ₪</span></p>
+      </div>
+
+      <div class="bg-gray-50 p-4 rounded-[2rem] mb-6 flex flex-col items-center">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhCYKl7uampM2nC16zong5KTZaern3dqfoKLbwjcejPT77BNLNH1JAfaI0JsZce1G-hWOAw4U7W-8DVhIaRSpGX_yyQezSxcqRRcznVSlZhynQm8DVvknURwwBKGKaoA-9UqC_SYG-IiWjorHcG_pR8HoIOfiKHeUIYbIbQchfJBvX4yweLmqwPR_McTVTI/s419/1000006606.jpg"
+             class="w-48 h-48 object-contain mb-4 shadow-md bg-white p-2 border rounded-2xl" alt="QR Code">
+        <p class="text-xs text-gray-500 mb-2 font-bold uppercase tracking-wider">عنوان المحفظة (TRC20)</p>
+        <div class="flex items-center gap-2 bg-white border p-3 rounded-full w-full">
+          <code class="text-[10px] font-bold text-gray-700 flex-grow break-all text-center">TBzfSosyHRNS8srX3Yj6jWEwJrEmDHrpgQ</code>
+          <button onclick="copyWallet()" class="text-red-500 p-2"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+
+      <div id="usdtInlineAlert" class="hidden mb-4 text-right bg-red-50 border border-red-200 text-red-700 rounded-[1.5rem] px-4 py-3 text-sm font-bold"></div>
+
+      <button onclick="verifyUsdtPayment()" class="w-full py-4 bg-gray-900 text-white rounded-full font-bold shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+        <i class="fas fa-paper-plane"></i> لقد دفعت بالفعل
+      </button>
+    </div>
+  </section>
+
+  <section id="cartView" class="view-section p-4 pb-28">
+    <div class="flex items-center gap-4 mb-6">
+      <button onclick="goBack()" class="w-10 h-10 bg-white shadow rounded-full flex items-center justify-center text-gray-700">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <h2 class="font-bold text-lg">سلة المشتريات</h2>
+    </div>
+
+    <div id="cartItemsList" class="space-y-4 mb-6"></div>
+
+    <div id="emptyCartMsg" class="hidden text-center py-20">
+      <i class="fas fa-shopping-cart text-5xl text-gray-200 mb-4"></i>
+      <p class="text-gray-400">السلة فارغة حالياً</p>
+    </div>
+  </section>
+
+  <div id="bottomBar" class="fixed bottom-0 inset-x-0 bg-white border-t p-4 flex justify-between items-center z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+    <div class="flex flex-col">
+      <span class="text-xs text-gray-400 font-semibold">المبلغ</span>
+      <span id="footerTotalPrice" class="text-xl font-bold text-red-500">0.00 ₪</span>
+    </div>
+    <div id="actionBtnContainer">
+      <button id="primaryActionBtn" onclick="handlePrimaryAction()" class="bg-red-500 text-white px-10 py-3 rounded-full font-bold shadow-lg shadow-red-200 flex items-center gap-2 active:scale-95 transition-transform">
+        <span id="actionBtnText">اشتري الآن</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCnLAY7zQyBy7gUuL9wszt9aEhiJgvRmxI",
+      authDomain: "shop-d52dc.firebaseapp.com",
+      databaseURL: "https://shop-d52dc-default-rtdb.firebaseio.com",
+      projectId: "shop-d52dc",
+      storageBucket: "shop-d52dc.appspot.com",
+      messagingSenderId: "97580537866",
+      appId: "1:97580537866:web:abc46e5a2f527b6300a7f3",
+      measurementId: "G-956RQMBP42"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const rtdb = firebase.database();
+    const auth = firebase.auth();
+
+    const PATH_SETTINGS_STORE = "settings/store";
+    const PATH_CATEGORIES = "categories";
+    const PATH_PRODUCTS = "products";
+    const PATH_ORDERS = "orders";
+    const PATH_COUNTRIES = "countries";
+    const PATH_ADS = "ads";
+    const PATH_COMMUNITY_POSTS = "community_posts";
+    const PATH_VERIFIED_USERS = "verified_users";
+    const PATH_USERS = "users";
+    const COUNTRY_STORAGE_KEY = "norhan_selected_country";
+
+    const GLOBAL_COUNTRY = {
+      code: "GLOBAL",
+      name: "عالمي",
+      flagUrl: "",
+      currencyCode: "USD",
+      currencySymbol: "$",
+      rateToIls: 3.2,
+      enabled: true,
+      order: -999
+    };
+
+    let storeSettings = {
+      exchangeRate: 3.2,
+      storeName: "ZERO SHOP",
+      storeLogoUrl: "",
+      storeTitleMode: "text",
+      storeTitleImageUrl: ""
+    };
+
+    let exchangeRate = 3.2;
+    let cart = [];
+    let viewHistory = ['storeView'];
+    let selectedProductId = null;
+    let currentActiveCategory = 'all';
+    let selectedPaymentMethod = 'visa';
+    let dynamicPrice = 0;
+    let timerInterval = null;
+
+    let categories = [];
+    let products = [];
+    let countries = [];
+    let ads = [];
+    let communityPosts = [];
+    let verifiedUsersMap = {};
+    let currentUser = null;
+    let currentUserProfile = null;
+    let remoteProductsMap = {};
+    let selectedCountryCode = localStorage.getItem(COUNTRY_STORAGE_KEY) || "GLOBAL";
+
+    let productsPerPage = 6;
+    let renderedProductsCount = 0;
+    let currentRenderedProductList = [];
+    let productsObserver = null;
+
+    function optimizedImageAttrs(){
+      return 'loading="lazy" decoding="async" fetchpriority="low" referrerpolicy="no-referrer"';
+    }
+
+    function brandImageAttrs(){
+      return 'loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer"';
+    }
+
+    function setLoading(on){
+      const el = document.getElementById('loadingOverlay');
+      if(!el) return;
+      on ? el.classList.remove('hidden') : el.classList.add('hidden');
+    }
+
+    function showToast(msg, type = "success"){
+      const t = document.createElement('div');
+      const icons = {
+        success: '<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>',
+        error: '<i class="fa-solid fa-circle-xmark text-rose-400 text-lg"></i>',
+        info: '<i class="fa-solid fa-circle-info text-sky-400 text-lg"></i>'
+      };
+      t.className = "toast-notification fixed bottom-24 left-1/2 -translate-x-1/2 bg-[#111827]/95 backdrop-blur-md text-white px-5 py-3 rounded-full z-[10000] text-sm font-bold flex items-center gap-3 shadow-2xl border border-white/10";
+      t.innerHTML = `${icons[type] || icons.success}<span>${escapeHtml(msg)}</span>`;
+      document.body.appendChild(t);
+      setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translate(-50%,20px)';
+        setTimeout(() => t.remove(), 300);
+      }, 2500);
+    }
+
+    function showUsdtInlineAlert(msg, type="error"){
+      const el = document.getElementById("usdtInlineAlert");
+      if(!el) return;
+      el.classList.remove("hidden");
+      if(type === "success"){
+        el.className = "mb-4 text-right bg-green-50 border border-green-200 text-green-700 rounded-[1.5rem] px-4 py-3 text-sm font-bold";
+      }else if(type === "info"){
+        el.className = "mb-4 text-right bg-blue-50 border border-blue-200 text-blue-700 rounded-[1.5rem] px-4 py-3 text-sm font-bold";
+      }else{
+        el.className = "mb-4 text-right bg-red-50 border border-red-200 text-red-700 rounded-[1.5rem] px-4 py-3 text-sm font-bold";
+      }
+      el.innerHTML = `<i class="fas fa-triangle-exclamation ml-1"></i>${escapeHtml(msg)}`;
+    }
+
+    function hideUsdtInlineAlert(){
+      const el = document.getElementById("usdtInlineAlert");
+      if(!el) return;
+      el.classList.add("hidden");
+      el.innerHTML = "";
+    }
+
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function safeParseJSON(txt, fallback){
+      try{return JSON.parse(txt);}catch{return fallback;}
+    }
+
+    function normalizeLookup(value){
+      return String(value || "").trim().toLowerCase().replace(/^@/, "");
+    }
+
+    function setSanitizedCart(){
+      const raw = safeParseJSON(localStorage.getItem('norhan_cart') || '[]', []);
+      cart = Array.isArray(raw) ? raw.filter(i => i && typeof i === 'object' && Number(i.quantity || 0) > 0 && (i.__localId || i.__key || i.name)) : [];
+      localStorage.setItem('norhan_cart', JSON.stringify(cart));
+    }
+
+    function moneySymbolPosition(symbol){
+      if(["₪","د.أ","د.إ","ر.س"].includes(symbol)) return "after";
+      return "before";
+    }
+
+    function getSelectedCountry(){
+      if(selectedCountryCode === "GLOBAL") return {...GLOBAL_COUNTRY, rateToIls: exchangeRate};
+      return countries.find(c => c.code === selectedCountryCode && c.enabled !== false) || {...GLOBAL_COUNTRY, rateToIls: exchangeRate};
+    }
+
+    function convertIlsToSelectedCurrency(ilsAmount){
+      const country = getSelectedCountry();
+      const rate = Number(country.rateToIls || 1);
+      if(rate <= 0) return Number(ilsAmount || 0);
+      return Number(ilsAmount || 0) / rate;
+    }
+
+    function formatDisplayPrice(ilsAmount){
+      const country = getSelectedCountry();
+      const localValue = convertIlsToSelectedCurrency(ilsAmount);
+      const symbol = country.currencySymbol || country.currencyCode || "₪";
+      if(moneySymbolPosition(symbol) === "after") return `${localValue.toFixed(2)} ${symbol}`;
+      return `${symbol}${localValue.toFixed(2)}`;
+    }
+
+    function calculateDiscountPercent(price, oldPrice){
+      const p = Number(price || 0);
+      const o = Number(oldPrice || 0);
+      if(!(o > p && o > 0)) return null;
+      return Math.round(((o - p) / o) * 100);
+    }
+
+    function getProductPricing(product){
+      const basePrice = Number(product?.price || 0);
+      const manualOldPrice = Number(product?.oldPrice || 0);
+      if(manualOldPrice > basePrice && basePrice > 0){
+        return {
+          finalPrice: basePrice,
+          oldPrice: manualOldPrice,
+          percent: calculateDiscountPercent(basePrice, manualOldPrice)
+        };
+      }
+      return { finalPrice: basePrice, oldPrice: 0, percent: 0 };
+    }
+
+    function getProductUnitPrice(product){
+      return Number(getProductPricing(product).finalPrice || 0);
+    }
+
+    function getProductOldPrice(product){
+      return Number(getProductPricing(product).oldPrice || 0);
+    }
+
+    function getProductDiscountBadge(product){
+      const info = getProductPricing(product);
+      return info.percent > 0 ? info.percent : null;
+    }
+
+    function updateActionButtonState(){
+      const currentView = document.querySelector('.view-section.active')?.id || 'storeView';
+      const btnText = document.getElementById('actionBtnText');
+      const bottomBar = document.getElementById('bottomBar');
+      if(!btnText || !bottomBar) return;
+
+      if(["visaView","usdtView"].includes(currentView)){
+        bottomBar.classList.add('hidden');
+        return;
+      }
+
+      bottomBar.classList.remove('hidden');
+
+      if(currentView === "detailsView"){
+        btnText.textContent = "التالي";
+      }else if(currentView === "paymentChoiceView"){
+        btnText.textContent = "إتمام الدفع";
+      }else{
+        btnText.textContent = "اشتري الآن";
+      }
+    }
+
+    function navigateTo(viewId, pushHistory = true){
+      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+      const target = document.getElementById(viewId);
+      if(target) target.classList.add('active');
+
+      if(viewId === 'usdtView'){
+        startTimer(30 * 60);
+      }else{
+        clearInterval(timerInterval);
+      }
+
+      if(pushHistory){
+        viewHistory.push(viewId);
+        history.pushState({view:viewId},"");
+      }
+
+      updateFooterDisplay();
+      updateActionButtonState();
+    }
+
+    window.onpopstate = function(){
+      const active = document.querySelector('.view-section.active');
+      if(active && active.id === 'usdtView'){
+        handleExitAttempt();
+        history.pushState({view:'usdtView'},"");
+        return;
+      }
+      if(viewHistory.length > 1){
+        viewHistory.pop();
+        navigateTo(viewHistory[viewHistory.length - 1], false);
+      }
+    };
+
+    function goBack(){ window.history.back(); }
+
+    function renderStoreBrand(){
+      const titleWrap = document.getElementById("storeTitleWrap");
+      const logoWrap = document.getElementById("storeLogoWrap");
+
+      if(storeSettings.storeLogoUrl){
+        logoWrap.innerHTML = `<img src="${escapeHtml(storeSettings.storeLogoUrl)}" class="w-full h-full object-cover" ${brandImageAttrs()} onerror="this.outerHTML='&lt;i class=&quot;fas fa-store text-red-500&quot;&gt;&lt;/i&gt;'">`;
+      }else{
+        logoWrap.innerHTML = `<i class="fas fa-store"></i>`;
+      }
+
+      if(storeSettings.storeTitleMode === "image" && storeSettings.storeTitleImageUrl){
+        titleWrap.innerHTML = `<img src="${escapeHtml(storeSettings.storeTitleImageUrl)}" class="store-title-image" ${brandImageAttrs()} onerror="this.outerHTML='${escapeHtml(storeSettings.storeName || "ZERO SHOP")}'">`;
+      }else{
+        titleWrap.textContent = storeSettings.storeName || "ZERO SHOP";
+      }
+    }
+
+    async function loadStoreSettings(){
+      const snap = await rtdb.ref(PATH_SETTINGS_STORE).get();
+      const v = snap.val() || {};
+      storeSettings = {
+        exchangeRate: Number(v.exchangeRate || 3.2),
+        storeName: v.storeName || "ZERO SHOP",
+        storeLogoUrl: v.storeLogoUrl || "",
+        storeTitleMode: v.storeTitleMode || "text",
+        storeTitleImageUrl: v.storeTitleImageUrl || ""
+      };
+      exchangeRate = Number(storeSettings.exchangeRate || 3.2);
+      document.getElementById("usdtRateText").innerText = `1$ = ${exchangeRate} ₪`;
+      renderStoreBrand();
+    }
+
+    function buildCategories(remoteCats){
+      categories = Object.entries(remoteCats || {}).map(([id,val]) => ({
+        id,
+        name: val?.name || id,
+        order: Number(val?.order || 0),
+        enabled: val?.enabled !== false
+      })).sort((a,b) => (a.order || 0) - (b.order || 0));
+    }
+
+    function buildCountries(remote){
+      countries = Object.entries(remote || {}).map(([code,val]) => ({
+        code,
+        name: val?.name || code,
+        flagUrl: val?.flagUrl || "",
+        currencyCode: val?.currencyCode || code,
+        currencySymbol: val?.currencySymbol || val?.currencyCode || code,
+        rateToIls: Number(val?.rateToIls || 1),
+        enabled: val?.enabled !== false,
+        order: Number(val?.order || 0)
+      })).sort((a,b) => (a.order || 0) - (b.order || 0));
+    }
+
+    function normalizeProductContentBlocks(v){
+      return Array.isArray(v) ? v : [];
+    }
+
+    function buildProducts(remotePro){
+      remoteProductsMap = {};
+      products = Object.entries(remotePro || {}).map(([key,val], idx) => {
+        remoteProductsMap[key] = val;
+        return {
+          __type:"remote",
+          __kind:"product",
+          __key:key,
+          __localId:`remote_${key}`,
+          category: val?.category || "all",
+          name: val?.name || "منتج",
+          price: Number(val?.price || 0),
+          oldPrice: Number(val?.oldPrice || 0),
+          delivery: val?.delivery || "سريع",
+          image: val?.image || "https://via.placeholder.com/500?text=No+Image",
+          desc: val?.desc || "",
+          isDynamic: !!val?.isDynamic,
+          enabled: val?.enabled !== false,
+          visibleCountries: Array.isArray(val?.visibleCountries) ? val.visibleCountries : [],
+          contentBlocks: normalizeProductContentBlocks(val?.contentBlocks || []),
+          middleMode: val?.middleMode || "json",
+          middleJson: Array.isArray(val?.middleJson) ? val.middleJson : [],
+          middleWebCode: val?.middleWebCode || "",
+          orderIndex: idx
+        };
+      });
+    }
+
+    function buildCommunityPosts(remote){
+      const verifiedMap = verifiedUsersMap || {};
+      communityPosts = Object.entries(remote || {}).map(([key,val], idx) => {
+        const verifyKey = normalizeLookup(val?.userHandle || val?.username || val?.displayName || "");
+        const verified = !!verifiedMap[verifyKey] || !!val?.verifiedSnapshot;
+        return {
+          __type:"community",
+          __kind:"product",
+          __key:key,
+          __localId:`community_${key}`,
+          category: val?.categoryId || "all",
+          name: val?.title || "منشور",
+          price: Number(val?.price || 0),
+          oldPrice: 0,
+          delivery: "",
+          image: (val?.images || [])[0] || "https://via.placeholder.com/500?text=Post",
+          images: Array.isArray(val?.images) ? val.images : [],
+          desc: val?.desc || "",
+          isDynamic: false,
+          enabled: val?.approvalStatus === "approved",
+          visibleCountries: val?.countryCode && val.countryCode !== "GLOBAL" ? [val.countryCode] : [],
+          approvalStatus: val?.approvalStatus || "pending",
+          detailsMode: val?.detailsMode || "whatsapp",
+          whatsappPrefix: val?.whatsappPrefix || "972",
+          whatsappNumber: val?.whatsappNumber || "",
+          displayName: val?.displayName || "مستخدم",
+          username: val?.username || "",
+          userHandle: val?.userHandle || "",
+          verified,
+          sourceLabel: "منشور مستخدم",
+          orderIndex: idx
+        };
+      }).filter(p => p.enabled);
+    }
+
+    function adStillActive(ad){
+      if(!ad || !ad.enabled) return false;
+      if(ad.infinite === true) return true;
+      if(!ad.endAt) return true;
+      return Date.now() <= Number(ad.endAt);
+    }
+
+    function buildAds(remote){
+      ads = Object.entries(remote || {}).map(([key,val]) => ({
+        __key:key,
+        name: val?.name || "إعلان",
+        type: val?.type || "web",
+        code: val?.code || "",
+        json: Array.isArray(val?.json) ? val.json : [],
+        image: val?.image || "",
+        slides: Array.isArray(val?.slides) ? val.slides : [],
+        productKey: val?.productKey || "",
+        productKeys: Array.isArray(val?.productKeys) ? val.productKeys : [],
+        span: val?.span || "1",
+        position: Number(val?.position || 1),
+        enabled: val?.enabled !== false,
+        infinite: val?.infinite === true,
+        endAt: Number(val?.endAt || 0),
+        clickAction: val?.clickAction || {type:"none"},
+        display: { showBadge: val?.display?.showBadge !== false, showBorder: val?.display?.showBorder !== false },
+        visibility: { categoryMode: val?.visibility?.categoryMode || "all", categories: Array.isArray(val?.visibility?.categories) ? val.visibility.categories : [] }
+      })).filter(adStillActive).sort((a,b) => (a.position || 0) - (b.position || 0));
+    }
+
+    function productVisibleInCurrentCountry(product){
+      if(product.enabled === false) return false;
+      if(selectedCountryCode === "GLOBAL") return true;
+      if(!Array.isArray(product.visibleCountries) || !product.visibleCountries.length) return true;
+      return product.visibleCountries.includes(selectedCountryCode) || product.visibleCountries.includes("ALL");
+    }
+
+    function getVisibleProducts(){
+      return [...products, ...communityPosts].filter(productVisibleInCurrentCountry);
+    }
+
+    function getNavigatorCountryCode(){
+      const lang = (navigator.language || "").toUpperCase();
+      const parts = lang.split("-");
+      return parts[1] || "";
+    }
+
+    function detectAndApplyCountry(){
+      const currentExists = selectedCountryCode === "GLOBAL" || countries.find(c => c.code === selectedCountryCode && c.enabled !== false);
+      if(currentExists){
+        applyCountry(selectedCountryCode, false);
+        return;
+      }
+
+      const navCode = getNavigatorCountryCode();
+      if(navCode){
+        const found = countries.find(c => c.code === navCode && c.enabled !== false);
+        if(found){
+          applyCountry(found.code, false);
+          return;
+        }
+      }
+
+      applyCountry("GLOBAL", false);
+    }
+
+    function applyCountry(code, rerender = true){
+      if(code !== "GLOBAL"){
+        const exists = countries.find(c => c.code === code && c.enabled !== false);
+        if(!exists) code = "GLOBAL";
+      }
+      selectedCountryCode = code;
+      localStorage.setItem(COUNTRY_STORAGE_KEY, code);
+
+      updateHeaderCountryUI();
+      renderCountryDropdown();
+
+      if(rerender){
+        renderCategoriesBar();
+        renderProducts();
+        renderCartItems();
+        updateFooterDisplay();
+      }
+    }
+
+    function updateHeaderCountryUI(){
+      const wrap = document.getElementById("headerCountryIconWrap");
+      const label = document.getElementById("selectedCountryLabel");
+      const country = getSelectedCountry();
+
+      if(country.code === "GLOBAL"){
+        wrap.innerHTML = `<i class="fas fa-globe text-gray-700"></i>`;
+      }else{
+        wrap.innerHTML = `<img src="${escapeHtml(country.flagUrl)}" class="country-icon" ${optimizedImageAttrs()} onerror="this.outerHTML='&lt;i class=&quot;fas fa-globe text-gray-700&quot;&gt;&lt;/i&gt;'">`;
+      }
+
+      label.textContent = `الدولة: ${country.name}`;
+    }
+
+    function toggleCountryDropdown(){
+      document.getElementById("countryDropdownMenu").classList.toggle("hidden");
+    }
+
+    function renderCountryDropdown(){
+      const menu = document.getElementById("countryDropdownMenu");
+      const selectedWrap = document.getElementById("countryDropdownSelected");
+      const enabledCountries = countries.filter(c => c.enabled !== false);
+      const current = getSelectedCountry();
+
+      selectedWrap.innerHTML = current.code === "GLOBAL"
+        ? `<i class="fas fa-globe text-gray-600"></i><span>عالمي</span>`
+        : `<img src="${escapeHtml(current.flagUrl)}" class="country-icon" ${optimizedImageAttrs()} onerror="this.style.display='none'"><span>${escapeHtml(current.name)}</span>`;
+
+      menu.innerHTML = `
+        <button class="country-option-modern ${selectedCountryCode === 'GLOBAL' ? 'active' : ''}" onclick="selectCountryFromDropdown('GLOBAL')">
+          <i class="fas fa-globe text-gray-600"></i>
+          <span>عالمي</span>
+        </button>
+        ${enabledCountries.map(c => `
+          <button class="country-option-modern ${selectedCountryCode === c.code ? 'active' : ''}" onclick="selectCountryFromDropdown('${c.code}')">
+            <img src="${escapeHtml(c.flagUrl)}" class="country-icon" ${optimizedImageAttrs()} onerror="this.style.display='none'">
+            <span>${escapeHtml(c.name)}</span>
+          </button>
+        `).join('')}
+      `;
+    }
+
+    function selectCountryFromDropdown(code){
+      applyCountry(code);
+      document.getElementById("countryDropdownMenu").classList.add("hidden");
+    }
+
+    document.addEventListener("click", (e) => {
+      const box = document.querySelector(".country-select-modern");
+      if(box && !box.contains(e.target)){
+        const menu = document.getElementById("countryDropdownMenu");
+        if(menu) menu.classList.add("hidden");
+      }
+    });
+
+    function renderCategoriesBar(){
+      const bar = document.getElementById('categoriesBar');
+      const visibleProducts = getVisibleProducts();
+      const usedCategories = new Set(visibleProducts.map(p => p.category));
+      const enabled = categories.filter(c => c.enabled !== false && usedCategories.has(c.id)).sort((a,b) => (a.order || 0) - (b.order || 0));
+
+      if(currentActiveCategory !== "all" && !enabled.find(c => c.id === currentActiveCategory)){
+        currentActiveCategory = 'all';
+      }
+
+      bar.innerHTML = `
+        <button id="cat-all" onclick="filterCategory('all')" class="${currentActiveCategory === 'all' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-600'} px-5 py-1.5 rounded-full whitespace-nowrap transition-colors">الكل</button>
+        ${enabled.map(c => `
+          <button id="cat-${c.id}" onclick="filterCategory('${c.id}')" class="${c.id === currentActiveCategory ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-600'} px-5 py-1.5 rounded-full whitespace-nowrap transition-colors">${escapeHtml(c.name)}</button>
+        `).join('')}
+      `;
+    }
+
+    function filterCategory(cat){
+      setLoading(true);
+      currentActiveCategory = cat;
+      renderCategoriesBar();
+      setTimeout(() => {
+        renderProducts();
+        setLoading(false);
+      }, 180);
+    }
+
+    function handleSearch(){
+      renderProducts();
+    }
+
+    function adVisibleInCurrentCategory(ad){
+      const visibility = ad.visibility || {categoryMode:"all", categories:[]};
+      if(visibility.categoryMode === "all") return true;
+      if(visibility.categoryMode === "all_only") return currentActiveCategory === "all";
+      if(visibility.categoryMode === "selected") return (visibility.categories || []).includes(currentActiveCategory);
+      return true;
+    }
+
+    function mergeProductsWithAds(productList){
+      const out = [];
+      let pIndex = 0;
+      const visibleAds = ads.filter(ad => adVisibleInCurrentCategory(ad));
+
+      while(pIndex < productList.length){
+        const nextPos = pIndex + 1;
+        const adsHere = visibleAds.filter(ad => Number(ad.position || 1) === nextPos);
+        adsHere.forEach(ad => out.push({__kind:"ad", ...ad}));
+        out.push({__kind:"product", ...productList[pIndex]});
+        pIndex++;
+      }
+
+      const trailingAds = visibleAds.filter(ad => Number(ad.position || 1) > productList.length);
+      trailingAds.forEach(ad => out.push({__kind:"ad", ...ad}));
+      return out;
+    }
+
+    function resetProductsPagination(){
+      renderedProductsCount = 0;
+      currentRenderedProductList = [];
+      if(productsObserver){
+        productsObserver.disconnect();
+        productsObserver = null;
+      }
+    }
+
+    function observeProductsLoadMore(){
+      const sentinel = document.getElementById("productsLoadSentinel");
+      if(!sentinel) return;
+      if(productsObserver) productsObserver.disconnect();
+
+      productsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting){
+            loadMoreProducts();
+          }
+        });
+      }, {threshold:.2});
+
+      productsObserver.observe(sentinel);
+    }
+
+    function loadMoreProducts(){
+      const all = currentRenderedProductList;
+      if(renderedProductsCount >= all.length) return;
+      renderedProductsCount += productsPerPage;
+      renderProductsChunk();
+    }
+
+    function getAdSpanClass(span){
+      if(String(span) === "2") return "ad-slot-2";
+      if(String(span) === "free") return "ad-slot-free";
+      return "ad-slot-1";
+    }
+
+    function getAdCardClasses(ad){
+      const display = ad.display || {showBorder:true};
+      return `ad-card ${getAdSpanClass(ad.span)} ${display.showBorder ? '' : 'ad-no-border'}`.trim();
+    }
+
+    function renderAdBadge(ad){
+      const display = ad.display || {showBadge:true};
+      if(!display.showBadge) return "";
+      return `<div class="ad-badge"><i class="fas fa-bullhorn"></i> ممول</div>`;
+    }
+
+    function getProductByRemoteKey(key){
+      return products.find(p => p.__key === key) || null;
+    }
+
+    function findProductByLocalId(localId){
+      return [...products, ...communityPosts].find(p => String(p.__localId) === String(localId)) || null;
+    }
+
+    function openProductFromAd(remoteKey){
+      const product = getProductByRemoteKey(remoteKey);
+      if(!product) return;
+      setLoading(true);
+      selectedProductId = product.__localId;
+      setTimeout(() => {
+        renderProducts();
+        updateFooterDisplay();
+        openPaymentInfo();
+        setLoading(false);
+      }, 120);
+    }
+
+    function goToCategoryFromAd(categoryId){
+      if(!categoryId) return;
+      setLoading(true);
+      currentActiveCategory = categoryId;
+      setTimeout(() => {
+        navigateTo("storeView", false);
+        renderCategoriesBar();
+        renderProducts();
+        setLoading(false);
+      }, 180);
+    }
+
+    function runClickAction(action){
+      if(!action) return;
+      if(action.type === "link" && action.link){
+        window.location.href = action.link;
+        return;
+      }
+      if(action.type === "category" && action.categoryId){
+        goToCategoryFromAd(action.categoryId);
+        return;
+      }
+      if(action.type === "product" && action.productKey){
+        openProductFromAd(action.productKey);
+      }
+    }
+
+    function handleAdClick(ad){
+      if(!ad) return;
+      if(ad.type === "product" && ad.productKey){
+        openProductFromAd(ad.productKey);
+        return;
+      }
+      runClickAction(ad.clickAction || {type:"none"});
+    }
+
+    function renderAdProductCard(product, compact=false){
+      if(!product) return `<div class="p-4 text-center text-gray-400 font-bold">المنتج غير موجود</div>`;
+      const disc = getProductDiscountBadge(product);
+      const priceInfo = getProductPricing(product);
+      return `
+        <div onclick="event.stopPropagation(); openProductFromAd('${product.__key}')" class="${compact ? 'ad-product-item' : 'p-3'} cursor-pointer">
+          <div class="bg-white p-3 rounded-[2rem] border border-gray-100 relative h-full">
+            ${disc ? `<div class="discount-badge"><i class="fas fa-percent"></i> -${disc}%</div>` : ''}
+            <img src="${escapeHtml(product.image)}" class="w-full product-img mb-2 p-1" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/500?text=No+Image'">
+            <h3 class="font-bold text-sm mb-1 truncate text-gray-800">${escapeHtml(product.name)}</h3>
+            <div class="flex items-center gap-2">
+              <span class="text-red-500 font-bold text-sm">${formatDisplayPrice(priceInfo.finalPrice)}</span>
+              ${priceInfo.oldPrice > 0 ? `<span class="text-gray-400 line-through text-[10px]">${formatDisplayPrice(priceInfo.oldPrice)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function scrollAdTrack(id, dir=1){
+      const track = document.getElementById(id);
+      if(!track) return;
+      const amount = track.clientWidth * 0.9;
+      track.scrollBy({left: dir * amount, behavior:'smooth'});
+    }
+
+    function syncAdDots(trackId, dotsId){
+      const track = document.getElementById(trackId);
+      const dots = document.getElementById(dotsId);
+      if(!track || !dots) return;
+      const children = [...dots.querySelectorAll('.ad-dot')];
+      const index = Math.round(track.scrollLeft / Math.max(track.clientWidth, 1));
+      children.forEach((dot,i) => dot.classList.toggle('active', i === index));
+    }
+
+    function goToAdSlide(trackId, dotsId, index){
+      const track = document.getElementById(trackId);
+      if(!track) return;
+      track.scrollTo({left: track.clientWidth * index, behavior:'smooth'});
+      setTimeout(() => syncAdDots(trackId, dotsId), 180);
+    }
+
+    function setupAutoIframeSize(){
+      const frames = document.querySelectorAll('iframe[data-auto-resize="1"]');
+      frames.forEach(frame => {
+        const resize = () => {
+          try{
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            if(!doc) return;
+            const body = doc.body;
+            const html = doc.documentElement;
+            const h = Math.max(
+              body ? body.scrollHeight : 0,
+              body ? body.offsetHeight : 0,
+              html ? html.scrollHeight : 0,
+              html ? html.offsetHeight : 0,
+              html ? html.clientHeight : 0
+            );
+            if(h > 0){
+              frame.style.height = h + 'px';
+              frame.style.minHeight = h + 'px';
+            }
+          }catch(err){}
+        };
+        frame.onload = () => {
+          resize();
+          setTimeout(resize, 100);
+          setTimeout(resize, 300);
+          setTimeout(resize, 800);
+        };
+      });
+    }
+
+    function handleSlideClick(adKey, index){
+      const ad = ads.find(a => a.__key === adKey);
+      if(!ad) return;
+      const slide = (ad.slides || [])[index];
+      if(slide && slide.clickAction && slide.clickAction.type !== "none"){
+        runClickAction(slide.clickAction);
+        return;
+      }
+      handleAdClick(ad);
+    }
+
+    function renderAdImagesSlider(ad){
+      const slides = Array.isArray(ad.slides) ? ad.slides.filter(x => x && x.src) : [];
+      if(!slides.length) return `<div class="p-4 text-center text-gray-400 font-bold">لا توجد صور</div>`;
+      const trackId = `ad_track_${ad.__key}`;
+      const dotsId = `ad_dots_${ad.__key}`;
+      return `
+        <div class="ad-image-shell relative">
+          ${slides.length > 1 ? `<button class="ad-nav-btn prev" onclick="event.stopPropagation();scrollAdTrack('${trackId}',-1)"><i class="fas fa-chevron-right"></i></button>` : ''}
+          ${slides.length > 1 ? `<button class="ad-nav-btn next" onclick="event.stopPropagation();scrollAdTrack('${trackId}',1)"><i class="fas fa-chevron-left"></i></button>` : ''}
+          <div id="${trackId}" class="ad-slider-track" onscroll="syncAdDots('${trackId}','${dotsId}')">
+            ${slides.map((slide, i) => `
+              <div class="ad-slide">
+                <img src="${escapeHtml(slide.src)}" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/900x400?text=Ad'">
+                <div class="ad-click-cover" onclick="handleSlideClick('${ad.__key}',${i})"></div>
+              </div>
+            `).join('')}
+          </div>
+          ${slides.length > 1 ? `<div id="${dotsId}" class="ad-dots">${slides.map((_,i) => `<button class="ad-dot ${i===0?'active':''}" onclick="event.stopPropagation();goToAdSlide('${trackId}','${dotsId}',${i})"></button>`).join('')}</div>` : ''}
+        </div>
+      `;
+    }
+
+    function renderAdProductsSlider(ad){
+      const keys = Array.isArray(ad.productKeys) ? ad.productKeys : [];
+      const list = keys.map(getProductByRemoteKey).filter(Boolean);
+      if(!list.length) return `<div class="p-4 text-center text-gray-400 font-bold">لا توجد منتجات محددة</div>`;
+      const trackId = `ad_products_${ad.__key}`;
+      return `
+        <div class="ad-products-shell relative">
+          ${list.length > 1 ? `<button class="ad-nav-btn prev" onclick="event.stopPropagation();scrollAdTrack('${trackId}',-1)"><i class="fas fa-chevron-right"></i></button>` : ''}
+          ${list.length > 1 ? `<button class="ad-nav-btn next" onclick="event.stopPropagation();scrollAdTrack('${trackId}',1)"><i class="fas fa-chevron-left"></i></button>` : ''}
+          <div id="${trackId}" class="ad-products-track">
+            ${list.map(product => renderAdProductCard(product, true)).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMiddleJsonBlocks(list){
+      const arr = Array.isArray(list) ? list : [];
+      if(!arr.length) return "";
+      return arr.map(item => {
+        if(item.type === "note"){
+          const styleMap = {
+            info: "bg-blue-50 border-blue-200 text-blue-700",
+            success: "bg-green-50 border-green-200 text-green-700",
+            error: "bg-red-50 border-red-200 text-red-700",
+            warning: "bg-amber-50 border-amber-200 text-amber-700"
+          };
+          const cls = styleMap[item.style] || styleMap.info;
+          return `<div class="border rounded-[1.5rem] p-4 text-sm font-bold ${cls}">${escapeHtml(item.text)}</div>`;
+        }
+        if(item.type === "image"){
+          return `
+            <div class="bg-white border border-gray-200 rounded-[1.5rem] p-3 overflow-hidden">
+              <img src="${escapeHtml(item.src || 'https://via.placeholder.com/600?text=Image')}" class="w-full rounded-[1.25rem] object-cover" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/600?text=Image'">
+              ${item.caption ? `<div class="text-xs text-gray-500 font-bold text-center mt-2">${escapeHtml(item.caption)}</div>` : ''}
+            </div>
+          `;
+        }
+        if(item.type === "card" || item.type === "text"){
+          return `
+            <div class="bg-white border border-gray-200 rounded-[1.5rem] p-4">
+              ${item.title ? `<div class="font-bold text-sm mb-1 text-gray-800">${escapeHtml(item.title)}</div>` : ''}
+              <div class="text-sm text-gray-600 whitespace-pre-line">${escapeHtml(item.text || "")}</div>
+            </div>
+          `;
+        }
+        if(item.type === "html"){
+          return `<div class="bg-white border border-gray-200 rounded-[1.5rem] overflow-hidden">
+            <iframe data-auto-resize="1" sandbox="allow-scripts allow-popups allow-forms" srcdoc="${escapeHtml(item.html || '')}" class="middle-render-frame"></iframe>
+          </div>`;
+        }
+        return '';
+      }).join('');
+    }
+
+    function renderAdCard(ad){
+      const hasClick = ad.type === "product" || (ad.clickAction && ad.clickAction.type !== "none");
+      const cardClasses = getAdCardClasses(ad);
+
+      if(ad.type === "product"){
+        const product = getProductByRemoteKey(ad.productKey);
+        return `<div class="${cardClasses}">${renderAdBadge(ad)}${renderAdProductCard(product)}</div>`;
+      }
+
+      if(ad.type === "products_slider"){
+        return `<div class="${cardClasses}">${renderAdBadge(ad)}${renderAdProductsSlider(ad)}</div>`;
+      }
+
+      if(ad.type === "image"){
+        return `
+          <div class="${cardClasses}">
+            ${renderAdBadge(ad)}
+            <div class="ad-image-shell relative">
+              <img src="${escapeHtml(ad.image || 'https://via.placeholder.com/800x400?text=Ad')}" class="ad-image-only" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/800x400?text=Ad'">
+              ${hasClick ? `<div class="ad-click-cover" onclick="handleAdClickByKey('${ad.__key}')"></div>` : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      if(ad.type === "images_slider"){
+        return `<div class="${cardClasses}">${renderAdBadge(ad)}${renderAdImagesSlider(ad)}</div>`;
+      }
+
+      if(ad.type === "json"){
+        return `
+          <div class="${cardClasses}">
+            ${renderAdBadge(ad)}
+            <div class="p-3 relative">
+              ${renderMiddleJsonBlocks(ad.json)}
+              ${hasClick ? `<div class="ad-click-cover" onclick="handleAdClickByKey('${ad.__key}')"></div>` : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      const safeCode = String(ad.code || "");
+      const isFree = String(ad.span) === "free";
+      const frameId = `ad_iframe_${ad.__key}`;
+
+      return `
+        <div class="${cardClasses}">
+          ${renderAdBadge(ad)}
+          <div class="ad-render-wrap ${isFree ? 'overflow-visible' : ''}" style="${isFree ? 'min-height:auto;background:transparent' : ''}">
+            <iframe id="${frameId}" data-auto-resize="1" sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+              srcdoc="${escapeHtml(safeCode)}"
+              style="${isFree ? 'min-height:auto;height:auto;background:transparent' : 'min-height:170px;height:auto;background:#fff'}"></iframe>
+            ${hasClick ? `<div class="ad-click-cover" onclick="handleAdClickByKey('${ad.__key}')"></div>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function handleAdClickByKey(key){
+      const ad = ads.find(a => a.__key === key);
+      handleAdClick(ad);
+    }
+
+    function resetSelectedIfMissing(list){
+      if(selectedProductId && !list.find(p => String(p.__localId) === String(selectedProductId))){
+        selectedProductId = null;
+      }
+    }
+
+    function renderProductsChunk(){
+      const grid = document.getElementById('productsGrid');
+      const merged = mergeProductsWithAds(currentRenderedProductList);
+
+      let productsSeen = 0;
+      const visibleChunk = [];
+      for(const item of merged){
+        if(item.__kind === "product"){
+          if(productsSeen < renderedProductsCount){
+            visibleChunk.push(item);
+            productsSeen++;
+          }else{
+            break;
+          }
+        }else{
+          if(productsSeen <= renderedProductsCount){
+            visibleChunk.push(item);
+          }
+        }
+      }
+
+      if(!currentRenderedProductList.length){
+        grid.innerHTML = `<div class="col-span-2 bg-white rounded-[2rem] p-8 text-center text-gray-400 font-bold shadow-sm">لا توجد منتجات متاحة في هذه الدولة حالياً</div>`;
+        return;
+      }
+
+      grid.innerHTML = visibleChunk.map(item => {
+        if(item.__kind === "ad") return renderAdCard(item);
+
+        const p = item;
+        const disc = getProductDiscountBadge(p);
+        const pricing = getProductPricing(p);
+        const isCommunity = p.__type === "community";
+        const nameRow = isCommunity
+          ? `<div class="flex items-center gap-1 mt-1">
+               <span class="text-[11px] font-bold text-black">${escapeHtml(p.displayName || 'مستخدم')}</span>
+               ${p.verified ? `<span class="verified-blue"><i class="fas fa-check"></i></span>` : ``}
+             </div>`
+          : ``;
+
+        return `
+          <div onclick="selectProduct('${p.__localId}')" class="product-card bg-white p-3 shadow-sm ${String(selectedProductId) === String(p.__localId) ? 'selected' : ''}">
+            ${disc ? `<div class="discount-badge"><i class="fas fa-percent"></i> -${disc}%</div>` : ''}
+            <img src="${escapeHtml(p.image)}" class="w-full product-img mb-2 p-1" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/500?text=No+Image'">
+            <h3 class="font-bold text-xs mb-1 truncate text-gray-800">${escapeHtml(p.name)}</h3>
+            ${nameRow}
+            <div class="flex flex-col gap-1 mt-1">
+              <div class="flex items-center gap-2">
+                <span class="text-red-500 font-bold text-sm">${formatDisplayPrice(pricing.finalPrice)}</span>
+                ${pricing.oldPrice > 0 ? `<span class="text-gray-400 line-through text-[10px]">${formatDisplayPrice(pricing.oldPrice)}</span>` : ''}
+              </div>
+              <div class="flex justify-end">
+                <div onclick="quickAdd(event, '${p.__localId}')" class="w-8 h-8 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-xs active:scale-90 transition-transform shadow-sm">
+                  <i class="fas fa-plus"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('') + `<div id="productsLoadSentinel" class="col-span-2 h-10"></div>`;
+
+      setupAutoIframeSize();
+      if(renderedProductsCount < currentRenderedProductList.length) observeProductsLoadMore();
+    }
+
+    function renderProducts(){
+      const term = (document.getElementById('searchInput').value || "").toLowerCase().trim();
+      let list = getVisibleProducts();
+
+      if(currentActiveCategory !== "all") list = list.filter(p => p.category === currentActiveCategory);
+      if(term) list = list.filter(p =>
+        (p.name || "").toLowerCase().includes(term) ||
+        (p.desc || "").toLowerCase().includes(term) ||
+        (p.displayName || "").toLowerCase().includes(term)
+      );
+
+      resetSelectedIfMissing(list);
+      resetProductsPagination();
+      currentRenderedProductList = list;
+      renderedProductsCount = Math.min(productsPerPage, list.length);
+      renderProductsChunk();
+    }
+
+    function selectProduct(id){
+      selectedProductId = id;
+      dynamicPrice = 0;
+      renderProductsChunk();
+      updateFooterDisplay();
+    }
+
+    function saveCart(){
+      cart = cart.filter(i => i && Number(i.quantity || 0) > 0);
+      localStorage.setItem('norhan_cart', JSON.stringify(cart));
+    }
+
+    function getCartItemUnitPrice(item){
+      if(item?.__type === 'remote' && item?.__key){
+        const live = getProductByRemoteKey(item.__key);
+        if(live) return getProductUnitPrice(live);
+      }
+      return Number(item?.price || 0);
+    }
+
+    function updateCartUI(){
+      const count = cart.reduce((sum,i) => sum + Number(i.quantity || 0), 0);
+      document.getElementById('cartCountBadge').innerText = String(count);
+      renderCartItems();
+    }
+
+    function quickAdd(event, localId){
+      event.stopPropagation();
+      const product = findProductByLocalId(localId);
+      if(!product || !productVisibleInCurrentCountry(product)) return;
+
+      if(product.__type === 'community'){
+        selectedProductId = product.__localId;
+        renderProductsChunk();
+        updateFooterDisplay();
+        showToast("تم تحديد المنشور","success");
+        return;
+      }
+
+      const unitPrice = getProductUnitPrice(product);
+      if(product.isDynamic){
+        const existing = cart.find(i => String(i.__localId) === String(localId));
+        if(existing) existing.quantity += 1;
+        else cart.push({...product, quantity:1, price:10});
+      }else{
+        const existing = cart.find(i => String(i.__localId) === String(localId));
+        if(existing){
+          existing.quantity += 1;
+          existing.price = unitPrice;
+        }else{
+          cart.push({...product, quantity:1, price:unitPrice});
+        }
+      }
+
+      saveCart();
+      updateCartUI();
+      showToast(`تم إضافة ${product.name} للسلة`,"success");
+    }
+
+    function renderCartItems(){
+      const list = document.getElementById('cartItemsList');
+      const visibleCart = cart.filter(i => i && productVisibleInCurrentCountry(i));
+
+      if(visibleCart.length === 0){
+        document.getElementById('emptyCartMsg').classList.remove('hidden');
+        list.innerHTML = "";
+        return;
+      }
+
+      document.getElementById('emptyCartMsg').classList.add('hidden');
+      list.innerHTML = visibleCart.map(item => {
+        const unitPrice = getCartItemUnitPrice(item);
+        const totalPrice = unitPrice * Number(item.quantity || 1);
+        const live = item.__key ? getProductByRemoteKey(item.__key) : null;
+        const oldP = live ? getProductOldPrice(live) : 0;
+        return `
+          <div onclick="selectCartProduct('${item.__localId}')" class="cart-item-card p-4 flex items-center gap-4 shadow-sm ${String(selectedProductId)===String(item.__localId) ? 'selected' : ''}">
+            <img src="${escapeHtml(item.image)}" class="w-16 h-16 object-cover bg-gray-50 p-1 border rounded-[1.25rem]" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/120?text=No+Image'">
+            <div class="flex-grow">
+              <h4 class="font-bold text-sm">${escapeHtml(item.name)}</h4>
+              <div class="flex items-center justify-between mt-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-red-500 font-bold">${formatDisplayPrice(totalPrice)}</span>
+                  ${oldP > 0 ? `<span class="text-gray-400 line-through text-[10px]">${formatDisplayPrice(oldP * Number(item.quantity || 1))}</span>` : ''}
+                </div>
+                <div class="flex items-center gap-3" onclick="event.stopPropagation()">
+                  <button onclick="changeQty('${item.__localId}', -1)" class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center font-bold text-gray-600">-</button>
+                  <span class="font-bold text-sm">${item.quantity}</span>
+                  <button onclick="changeQty('${item.__localId}', 1)" class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center font-bold text-gray-600">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateFooterDisplay();
+    }
+
+    function changeQty(localId, delta){
+      const item = cart.find(i => String(i.__localId) === String(localId));
+      if(item){
+        item.quantity += delta;
+        if(item.quantity <= 0){
+          cart = cart.filter(i => String(i.__localId) !== String(localId));
+          if(String(selectedProductId) === String(localId) && cart.length === 0) selectedProductId = null;
+        }
+        saveCart();
+        updateCartUI();
+      }
+    }
+
+    function selectCartProduct(localId){
+      selectedProductId = localId;
+      renderCartItems();
+      updateFooterDisplay();
+    }
+
+    function setPaymentMethod(method){
+      selectedPaymentMethod = method;
+      document.querySelectorAll('.payment-option').forEach(el => {
+        el.classList.remove('selected');
+        if(el.dataset.method === method) el.classList.add('selected');
+      });
+    }
+
+    function setDynamicPrice(val){
+      dynamicPrice = parseFloat(val) || 0;
+      const priceDisplay = document.getElementById('dynamicPriceDisplay');
+      if(priceDisplay) priceDisplay.innerText = formatDisplayPrice(dynamicPrice);
+      updateFooterDisplay();
+
+      document.querySelectorAll('.price-btn').forEach(btn => {
+        btn.classList.remove('bg-red-500','text-white');
+        btn.classList.add('bg-gray-100','text-gray-600');
+      });
+
+      const activeBtn = document.getElementById('pbtn-' + val);
+      if(activeBtn){
+        activeBtn.classList.remove('bg-gray-100','text-gray-600');
+        activeBtn.classList.add('bg-red-500','text-white');
+      }
+    }
+
+    function computeFinalPrice(product){
+      if(!product) return 0;
+      const cartItem = cart.find(i => String(i.__localId) === String(product.__localId));
+      if(product.isDynamic) return Number(dynamicPrice || 0);
+      if(cartItem) return getCartItemUnitPrice(cartItem) * Number(cartItem.quantity || 1);
+      return getProductUnitPrice(product);
+    }
+
+    function optionsStringToArray(str){
+      return String(str || "").split(",").map(s => s.trim()).filter(Boolean);
+    }
+
+    function renderFieldInput(block){
+      const required = block.required ? 'true' : 'false';
+      const minLen = block.minLen ?? "";
+      const key = escapeHtml(block.key || "");
+      const label = escapeHtml(block.label || 'حقل');
+      const placeholder = escapeHtml(block.placeholder || '');
+      const inputType = String(block.inputType || "text").toLowerCase();
+
+      if(inputType === "select"){
+        const options = optionsStringToArray(block.options);
+        return `
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">${label}${block.required ? ' <span class="text-red-500">*</span>' : ''}</label>
+            <select data-field-key="${key}" data-label="${label}" data-required="${required}" data-minlen="${minLen}" class="w-full bg-white border border-gray-200 rounded-full py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold">
+              ${options.map(o => `<option>${escapeHtml(o)}</option>`).join('')}
+            </select>
+          </div>
+        `;
+      }
+
+      if(inputType === "textarea"){
+        return `
+          <div>
+            <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">${label}${block.required ? ' <span class="text-red-500">*</span>' : ''}</label>
+            <textarea data-field-key="${key}" data-label="${label}" data-required="${required}" data-minlen="${minLen}" rows="3" placeholder="${placeholder}" class="w-full bg-white border border-gray-200 py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold"></textarea>
+          </div>
+        `;
+      }
+
+      return `
+        <div>
+          <label class="text-xs font-bold text-gray-500 block mb-1 mr-1">${label}${block.required ? ' <span class="text-red-500">*</span>' : ''}</label>
+          <input type="${inputType === 'number' ? 'number' : 'text'}" data-field-key="${key}" data-label="${label}" data-required="${required}" data-minlen="${minLen}" placeholder="${placeholder}" class="w-full bg-white border border-gray-200 rounded-full py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold">
+        </div>
+      `;
+    }
+
+    function renderContentBlocks(product){
+      const blocks = Array.isArray(product.contentBlocks) ? product.contentBlocks : [];
+
+      if(!blocks.length){
+        const isCredit = !!product.isDynamic;
+        return `
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-gray-500 mr-1">${isCredit ? 'رقم الهاتف' : 'رقم الآيدي (ID)'}</label>
+            <div class="relative">
+              <input type="number" data-field-key="playerID" data-label="${isCredit ? 'رقم الهاتف' : 'رقم الآيدي'}" data-required="true" data-minlen="${isCredit ? 9 : 5}"
+                     placeholder="${isCredit ? 'أدخل رقم الهاتف...' : 'أدخل رقم الـ ID هنا...'}"
+                     class="w-full bg-white border border-gray-200 rounded-full py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold tracking-widest">
+              <i class="fas ${isCredit ? 'fa-phone' : 'fa-id-badge'} absolute left-4 top-3.5 text-gray-300"></i>
+            </div>
+          </div>
+        `;
+      }
+
+      return blocks.map(block => {
+        if(block.type === "text"){
+          return `
+            <div class="bg-white border border-gray-200 rounded-[1.5rem] p-4">
+              ${block.title ? `<div class="font-bold text-sm mb-1 text-gray-800">${escapeHtml(block.title)}</div>` : ''}
+              <div class="text-sm text-gray-600 whitespace-pre-line">${escapeHtml(block.text || "")}</div>
+            </div>
+          `;
+        }
+        if(block.type === "image"){
+          return `
+            <div class="bg-white border border-gray-200 rounded-[1.5rem] p-3 overflow-hidden">
+              <img src="${escapeHtml(block.src || 'https://via.placeholder.com/600?text=Image')}" class="w-full rounded-[1.25rem] object-cover" style="aspect-ratio:1/1" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/600?text=Image'">
+              ${block.caption ? `<div class="text-xs text-gray-500 font-bold text-center mt-2">${escapeHtml(block.caption)}</div>` : ''}
+            </div>
+          `;
+        }
+        if(block.type === "field") return renderFieldInput(block);
+        return '';
+      }).join('');
+    }
+
+    function collectCheckoutFieldValues(){
+      const container = document.getElementById("detailsContent");
+      const els = container.querySelectorAll("[data-field-key]");
+      const values = {};
+      const labels = {};
+      let ok = true;
+
+      els.forEach(el => {
+        const key = el.getAttribute("data-field-key");
+        const label = el.getAttribute("data-label") || key;
+        const required = el.getAttribute("data-required") === "true";
+        const minLenStr = el.getAttribute("data-minlen");
+        const minLen = minLenStr ? parseInt(minLenStr,10) : null;
+        const v = (el.value || "").toString().trim();
+        el.classList.remove("ring-2","ring-red-400");
+
+        if(required && !v){
+          ok = false;
+          el.classList.add("ring-2","ring-red-400");
+        }
+        if(minLen && v.length > 0 && v.length < minLen){
+          ok = false;
+          el.classList.add("ring-2","ring-red-400");
+        }
+        values[key] = v;
+        labels[key] = label;
+      });
+
+      return {ok, values, labels};
+    }
+
+    function renderSelectedImagesSlider(images){
+      const safe = Array.isArray(images) ? images.filter(Boolean) : [];
+      if(!safe.length) return '';
+      const trackId = 'selected_images_track';
+      const dotsId = 'selected_images_dots';
+      return `
+        <div class="ad-image-shell relative mb-4">
+          ${safe.length > 1 ? `<button class="ad-nav-btn prev" onclick="event.stopPropagation();scrollAdTrack('${trackId}',-1)"><i class="fas fa-chevron-right"></i></button>` : ''}
+          ${safe.length > 1 ? `<button class="ad-nav-btn next" onclick="event.stopPropagation();scrollAdTrack('${trackId}',1)"><i class="fas fa-chevron-left"></i></button>` : ''}
+          <div id="${trackId}" class="ad-slider-track" onscroll="syncAdDots('${trackId}','${dotsId}')">
+            ${safe.map(img => `
+              <div class="ad-slide">
+                <img src="${escapeHtml(img)}" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/900x400?text=Image'">
+              </div>
+            `).join('')}
+          </div>
+          ${safe.length > 1 ? `<div id="${dotsId}" class="ad-dots">${safe.map((_,i) => `<button class="ad-dot ${i===0?'active':''}" onclick="goToAdSlide('${trackId}','${dotsId}',${i})"></button>`).join('')}</div>` : ''}
+        </div>
+      `;
+    }
+
+    function openPaymentInfo(){
+      const product = findProductByLocalId(selectedProductId) || getVisibleProducts()[0];
+      if(!product) return;
+
+      setLoading(true);
+      setTimeout(() => {
+        const isCommunity = product.__type === 'community';
+        const isCredit = !!product.isDynamic;
+        if(isCredit && !dynamicPrice) dynamicPrice = 10;
+        if(!isCredit) dynamicPrice = 0;
+
+        const finalPrice = computeFinalPrice(product);
+        const cartItem = cart.find(i => String(i.__localId) === String(product.__localId));
+        const qtyText = cartItem && cartItem.quantity > 1 ? `(العدد: ${cartItem.quantity})` : '';
+        const pricing = getProductPricing(product);
+
+        const userLine = isCommunity
+          ? `<div class="flex items-center gap-2 mt-2">
+               <span class="text-sm font-bold text-black">${escapeHtml(product.displayName || 'مستخدم')}</span>
+               ${product.verified ? `<span class="verified-blue"><i class="fas fa-check"></i></span>` : ``}
+             </div>`
+          : '';
+
+        const middleRendered = product.middleMode === "web"
+          ? `<div class="bg-white border border-gray-200 rounded-[1.5rem] overflow-hidden">
+               <iframe data-auto-resize="1" sandbox="allow-scripts allow-popups allow-forms"
+                 srcdoc="${escapeHtml(product.middleWebCode || '')}" class="middle-render-frame"></iframe>
+             </div>`
+          : renderMiddleJsonBlocks(product.middleJson);
+
+        const communityActions = isCommunity ? `
+          ${renderSelectedImagesSlider(product.images || [product.image])}
+          ${product.desc ? `<div class="bg-white border border-gray-200 rounded-[1.5rem] p-4 text-sm text-gray-700 whitespace-pre-line mb-4">${escapeHtml(product.desc)}</div>` : ``}
+          <a href="https://wa.me/${escapeHtml((product.whatsappPrefix || '972') + (product.whatsappNumber || ''))}?text=${encodeURIComponent('مرحباً، أريد شراء: ' + (product.name || 'منتج'))}" 
+             target="_blank"
+             class="w-full inline-flex items-center justify-center gap-2 py-4 bg-green-600 text-white rounded-full font-bold shadow-lg">
+             <i class="fab fa-whatsapp text-lg"></i> تواصل واتساب
+          </a>
+        ` : `
+          <div class="space-y-3 mb-4">${renderContentBlocks(product)}</div>
+          <div class="space-y-3 mb-4">${middleRendered}</div>
+        `;
+
+        document.getElementById('detailsContent').innerHTML = `
+          <div class="flex items-center gap-4 border-b pb-4 mb-4">
+            <div class="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white overflow-hidden shadow-inner">
+              ${storeSettings.storeLogoUrl
+                ? `<img src="${escapeHtml(storeSettings.storeLogoUrl)}" class="w-full h-full object-cover" ${brandImageAttrs()} onerror="this.outerHTML='&lt;i class=&quot;fas fa-store text-xl text-red-500&quot;&gt;&lt;/i&gt;'">`
+                : `<i class="fas fa-store text-xl text-red-500"></i>`}
+            </div>
+            <div>
+              <h3 class="font-bold text-lg">${escapeHtml(storeSettings.storeName || 'المتجر')}</h3>
+              <div class="safe-badge">
+                <span class="verified-green"><i class="fas fa-check"></i></span>
+                <span>خدمة شحن معتمدة وآمنة</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <span class="text-gray-400 text-xs block mb-1">المبلغ</span>
+              <div class="flex items-center gap-2">
+                <span id="dynamicPriceDisplay" class="font-bold text-2xl text-red-500">${formatDisplayPrice(finalPrice)}</span>
+                ${!isCredit && pricing.oldPrice > 0 ? `<span class="text-gray-400 line-through text-sm">${formatDisplayPrice(pricing.oldPrice)}</span>` : ''}
+              </div>
+            </div>
+            ${!isCommunity ? `
+            <div class="text-left">
+              <span class="text-gray-400 text-xs block mb-1">سرعة التنفيذ</span>
+              <span class="font-bold text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">${escapeHtml(product.delivery || "سريع")}</span>
+            </div>` : ``}
+          </div>
+
+          <div class="bg-gray-50 rounded-[2rem] p-4 mb-6 border border-gray-100 shadow-sm">
+            <div class="flex items-center gap-3 mb-4">
+              <img src="${escapeHtml(product.image)}" class="w-16 h-16 object-cover bg-white p-1 border shadow-sm rounded-[1rem]" ${optimizedImageAttrs()} onerror="this.src='https://via.placeholder.com/120?text=No+Image'">
+              <div>
+                <span class="text-gray-400 text-[10px] block font-bold uppercase tracking-wider">المنتج</span>
+                <h4 class="text-gray-800 font-bold text-sm">${escapeHtml(product.name)} ${qtyText}</h4>
+                ${userLine}
+                ${!isCommunity ? `<p class="text-[11px] text-gray-500 mt-1">${escapeHtml(product.desc || "")}</p>` : ``}
+              </div>
+            </div>
+
+            ${isCredit ? `
+              <div class="mb-4">
+                <label class="text-xs font-bold text-gray-500 block mb-2 mr-1">اختر فئة الشحن</label>
+                <div class="grid grid-cols-4 gap-2 mb-3">
+                  <button id="pbtn-10" onclick="setDynamicPrice(10)" class="price-btn py-2 bg-red-500 text-white text-xs font-bold rounded-full">10</button>
+                  <button id="pbtn-15" onclick="setDynamicPrice(15)" class="price-btn py-2 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">15</button>
+                  <button id="pbtn-20" onclick="setDynamicPrice(20)" class="price-btn py-2 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">20</button>
+                  <button id="pbtn-50" onclick="setDynamicPrice(50)" class="price-btn py-2 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">50</button>
+                </div>
+                <input type="number" oninput="setDynamicPrice(this.value)" placeholder="أو اكتب مبلغ مخصص..." class="w-full bg-white border border-gray-200 rounded-full py-3 px-4 outline-none focus:ring-2 focus:ring-red-400 text-sm font-bold">
+              </div>
+            ` : ''}
+
+            ${communityActions}
+          </div>
+        `;
+
+        navigateTo('detailsView');
+        updateFooterDisplay();
+        setupAutoIframeSize();
+        setLoading(false);
+      }, 200);
+    }
+
+    function formatFieldsPreview(obj){
+      const values = obj?.values || {};
+      const labels = obj?.labels || {};
+      const entries = Object.keys(values).filter(k => String(values[k] || '').trim());
+      if(!entries.length){
+        return `<div class="text-sm text-gray-400 font-bold">لا توجد بيانات مدخلة</div>`;
+      }
+      return entries.map(key => `
+        <div class="bg-gray-50 border border-gray-100 rounded-[1.25rem] p-3 flex items-center justify-between gap-3">
+          <span class="text-gray-500 font-bold text-xs">${escapeHtml(labels[key] || key)}</span>
+          <span class="text-gray-800 font-bold text-sm">${escapeHtml(values[key])}</span>
+        </div>
+      `).join('');
+    }
+
+    function openPaymentChoice(){
+      const product = findProductByLocalId(selectedProductId);
+      if(!product) return;
+      const finalPrice = computeFinalPrice(product);
+      const cached = safeParseJSON(sessionStorage.getItem("checkoutFieldsCache") || "{}", {values:{},labels:{}});
+
+      setLoading(true);
+      setTimeout(() => {
+        document.getElementById("paymentChoiceAmount").innerText = formatDisplayPrice(finalPrice);
+        document.getElementById("paymentChoiceFieldsPreview").innerHTML = formatFieldsPreview(cached);
+        setPaymentMethod(selectedPaymentMethod);
+        navigateTo("paymentChoiceView");
+        setLoading(false);
+      }, 180);
+    }
+
+    function handlePrimaryAction(){
+      const currentView = document.querySelector('.view-section.active')?.id;
+
+      if(currentView === 'storeView' || currentView === 'cartView'){
+        if(currentView === 'cartView' && cart.filter(i => productVisibleInCurrentCountry(i)).length === 0){
+          showToast("السلة فارغة","error");
+          return;
+        }
+        openPaymentInfo();
+        return;
+      }
+
+      if(currentView === 'detailsView'){
+        const product = findProductByLocalId(selectedProductId);
+        if(!product) return;
+
+        if(product.__type === 'community'){
+          showToast("استخدم زر واتساب للتواصل مع الناشر","info");
+          return;
+        }
+
+        const {ok, values, labels} = collectCheckoutFieldValues();
+        if(!ok){
+          showToast("يرجى تعبئة الحقول المطلوبة","error");
+          return;
+        }
+
+        sessionStorage.setItem("checkoutFieldsCache", JSON.stringify({values, labels}));
+        openPaymentChoice();
+        return;
+      }
+
+      if(currentView === 'paymentChoiceView'){
+        const product = findProductByLocalId(selectedProductId);
+        if(!product) return;
+
+        const cachedFields = safeParseJSON(sessionStorage.getItem("checkoutFieldsCache") || "{}", {});
+        const finalPrice = computeFinalPrice(product);
+
+        if(selectedPaymentMethod === 'usdt'){
+          const amountInUsdt = finalPrice / exchangeRate;
+          if(amountInUsdt <= 0){
+            showToast("المبلغ غير صحيح","error");
+            return;
+          }
+
+          hideUsdtInlineAlert();
+          setLoading(true);
+          setTimeout(() => {
+            document.getElementById('usdtAmount').innerText = `$${amountInUsdt.toFixed(2)}`;
+            document.getElementById('usdtRateText').innerText = `1$ = ${exchangeRate} ₪`;
+            setLoading(false);
+            navigateTo('usdtView');
+          }, 250);
+          return;
+        }
+
+        sessionStorage.setItem("pendingCheckout", JSON.stringify({
+          productLocalId: product.__localId,
+          productType: product.__type,
+          productKey: product.__key,
+          productName: product.name,
+          productCategory: product.category,
+          amount: finalPrice,
+          countryCode: selectedCountryCode,
+          countryName: getSelectedCountry().name,
+          checkoutFields: cachedFields.values || {},
+          checkoutLabels: cachedFields.labels || {},
+          cartSnapshot: cart.map(i => ({
+            name:i.name,
+            qty:i.quantity,
+            price:getCartItemUnitPrice(i)
+          }))
+        }));
+
+        document.getElementById("visaAmount").innerText = formatDisplayPrice(finalPrice);
+
+        setLoading(true);
+        setTimeout(() => {
+          setLoading(false);
+          navigateTo('visaView');
+        }, 250);
+      }
+    }
+
+    function updateFooterDisplay(){
+      const footerTotal = document.getElementById('footerTotalPrice');
+      const product = findProductByLocalId(selectedProductId);
+
+      if(!product){
+        footerTotal.innerText = "0.00 ₪";
+        updateActionButtonState();
+        return;
+      }
+
+      const currentView = document.querySelector('.view-section.active')?.id;
+      if((currentView === 'detailsView' || currentView === 'paymentChoiceView') && product.isDynamic){
+        footerTotal.innerText = formatDisplayPrice(Number(dynamicPrice || 0));
+        updateActionButtonState();
+        return;
+      }
+
+      const item = cart.find(i => String(i.__localId) === String(selectedProductId));
+      if(item) footerTotal.innerText = formatDisplayPrice(getCartItemUnitPrice(item) * item.quantity);
+      else footerTotal.innerText = getProductUnitPrice(product) > 0 ? formatDisplayPrice(getProductUnitPrice(product)) : "اختر المبلغ";
+
+      updateActionButtonState();
+    }
+
+    function startTimer(duration){
+      let timer = duration;
+      const display = document.getElementById('timer');
+      clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        const minutes = String(Math.floor(timer/60)).padStart(2,'0');
+        const seconds = String(timer%60).padStart(2,'0');
+        display.textContent = `${minutes}:${seconds}`;
+        if(--timer < 0){
+          clearInterval(timerInterval);
+          showToast("انتهت جلسة الدفع، يرجى المحاولة مرة أخرى.","error");
+          navigateTo('storeView');
+        }
+      }, 1000);
+    }
+
+    function copyWallet(){
+      const el = document.createElement('textarea');
+      el.value = "TBzfSosyHRNS8srX3Yj6jWEwJrEmDHrpgQ";
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      showToast("تم نسخ عنوان المحفظة","success");
+    }
+
+    function verifyUsdtPayment(){
+      setLoading(true);
+      setTimeout(() => {
+        setLoading(false);
+        showUsdtInlineAlert("فشل الدفع: لم يتم اكتشاف دفعات من طرفك حتى الآن.","error");
+      }, 1200);
+    }
+
+    function handleExitAttempt(){ document.getElementById('exitModal').classList.remove('hidden'); }
+    function closeExitModal(){ document.getElementById('exitModal').classList.add('hidden'); }
+    function confirmExit(){ closeExitModal(); navigateTo('storeView'); }
+
+    function formatNationalId(input){
+      input.value = (input.value || "").replace(/\D/g, "").slice(0, 20);
+    }
+
+    function formatExp(input){
+      let v = (input.value || "").replace(/\D/g,"").slice(0,4);
+      if(v.length >= 3) v = v.slice(0,2) + "/" + v.slice(2);
+      input.value = v;
+    }
+
+    async function submitVisaPayment(){
+      const pending = JSON.parse(sessionStorage.getItem("pendingCheckout") || "null");
+      if(!pending){
+        showToast("لا يوجد طلب جاهز","error");
+        return;
+      }
+
+      const name = (document.getElementById("cardName").value || "").trim();
+      const nationalId = (document.getElementById("cardNumber").value || "").replace(/\D/g,"").trim();
+      const operationDate = (document.getElementById("cardExp").value || "").trim();
+      const invoiceNumber = (document.getElementById("cardCvv").value || "").trim();
+
+      if(name.length < 3){
+        showToast("أدخل الاسم الكامل بشكل صحيح","error");
+        return;
+      }
+      if(nationalId.length < 5){
+        showToast("أدخل رقم صحيح","error");
+        return;
+      }
+      if(operationDate.length < 4){
+        showToast("أدخل تاريخ انتهاء الفاتورة","error");
+        return;
+      }
+      if(invoiceNumber.length < 2){
+        showToast("أدخل الرقم الأخير","error");
+        return;
+      }
+
+      setLoading(true);
+      try{
+        const order = {
+          paymentMethod: "manual_invoice",
+          amountIls: Number(pending.amount || 0),
+          displayAmount: formatDisplayPrice(pending.amount || 0),
+          currencyCountryCode: pending.countryCode || "GLOBAL",
+          currencyCountryName: pending.countryName || "عالمي",
+          product: {
+            localId: pending.productLocalId,
+            type: pending.productType,
+            key: pending.productKey,
+            name: pending.productName,
+            category: pending.productCategory
+          },
+          checkoutFields: pending.checkoutFields || {},
+          checkoutLabels: pending.checkoutLabels || {},
+          cartSnapshot: pending.cartSnapshot || [],
+          customerName: name,
+          nationalId: nationalId,
+          invoiceNumber: invoiceNumber,
+          operationDate: operationDate,
+          status: "new_order",
+          createdAt: Date.now()
+        };
+
+        await rtdb.ref(PATH_ORDERS).push(order);
+        showToast("فشل الدفع، تأكد من بيانات بطاقة الهوية","error");
+
+        sessionStorage.removeItem("pendingCheckout");
+        sessionStorage.removeItem("checkoutFieldsCache");
+        document.getElementById("cardName").value = "";
+        document.getElementById("cardNumber").value = "";
+        document.getElementById("cardExp").value = "";
+        document.getElementById("cardCvv").value = "";
+
+        navigateTo("storeView");
+      }catch(e){
+        console.error(e);
+        showToast("فشل حفظ الطلب في Firebase","error");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    function openSideDrawer(){
+      refreshDrawerState();
+      document.getElementById('drawerOverlay').classList.remove('hidden');
+      setTimeout(() => document.getElementById('drawerPanel').classList.add('open'), 10);
+    }
+
+    function closeSideDrawer(){
+      document.getElementById('drawerPanel').classList.remove('open');
+      setTimeout(() => document.getElementById('drawerOverlay').classList.add('hidden'), 220);
+    }
+
+    function refreshDrawerState(){
+      const title = document.getElementById('drawerUserTitle');
+      const sub = document.getElementById('drawerUserSub');
+      const btnText = document.getElementById('drawerAccountText');
+      const logoutBtn = document.getElementById('drawerLogoutBtn');
+
+      if(currentUser){
+        const isAdmin = currentUserProfile?.role === 'admin';
+        title.textContent = currentUserProfile?.displayName || currentUser?.email || 'مرحباً';
+        sub.textContent = isAdmin ? 'أنت مسجل كأدمن' : 'أنت مسجل كمستخدم';
+        btnText.textContent = isAdmin ? 'الأدمن' : 'الملف الشخصي';
+        logoutBtn.classList.remove('hidden');
+      }else{
+        title.textContent = 'مرحباً بك';
+        sub.textContent = 'اختر ما تريد';
+        btnText.textContent = 'تسجيل الدخول / إنشاء حساب';
+        logoutBtn.classList.add('hidden');
+      }
+    }
+
+    function goDrawerAccount(){
+      if(currentUser){
+        if(currentUserProfile?.role === 'admin'){
+          window.location.href = 'admin.html';
+          return;
+        }
+        window.location.href = 'login.html?view=profile&tab=main';
+        return;
+      }
+      window.location.href = 'login.html';
+    }
+
+    async function logoutFromDrawer(){
+      try{
+        await auth.signOut();
+      }catch(e){}
+      currentUser = null;
+      currentUserProfile = null;
+      refreshDrawerState();
+      closeSideDrawer();
+      showToast("تم تسجيل الخروج","success");
+    }
+
+    async function loadAuthState(){
+      return new Promise((resolve) => {
+        auth.onAuthStateChanged(async (user) => {
+          currentUser = user || null;
+          if(user){
+            try{
+              const snap = await rtdb.ref(`${PATH_USERS}/${user.uid}`).get();
+              currentUserProfile = snap.val() || { role:'user', displayName:user.displayName || '', email:user.email || '' };
+            }catch{
+              currentUserProfile = { role:'user', displayName:user.displayName || '', email:user.email || '' };
+            }
+          }else{
+            currentUserProfile = null;
+          }
+          refreshDrawerState();
+          resolve();
+        });
+      });
+    }
+
+    async function loadFromFirebase(){
+      try{
+        const [catsSnap, proSnap, countriesSnap, adsSnap, communitySnap, verifiedSnap] = await Promise.all([
+          rtdb.ref(PATH_CATEGORIES).get(),
+          rtdb.ref(PATH_PRODUCTS).get(),
+          rtdb.ref(PATH_COUNTRIES).get(),
+          rtdb.ref(PATH_ADS).get(),
+          rtdb.ref(PATH_COMMUNITY_POSTS).get(),
+          rtdb.ref(PATH_VERIFIED_USERS).get()
+        ]);
+
+        verifiedUsersMap = verifiedSnap.val() || {};
+        buildCategories(catsSnap.val() || {});
+        buildCountries(countriesSnap.val() || {});
+        buildProducts(proSnap.val() || {});
+        buildCommunityPosts(communitySnap.val() || {});
+        buildAds(adsSnap.val() || {});
+        await loadStoreSettings();
+        detectAndApplyCountry();
+      }catch(e){
+        console.error(e);
+        categories = [];
+        products = [];
+        countries = [];
+        ads = [];
+        communityPosts = [];
+        exchangeRate = 3.2;
+        showToast("تعذر تحميل بعض البيانات","error");
+      }
+
+      renderCountryDropdown();
+      renderCategoriesBar();
+      renderProducts();
+      updateCartUI();
+      updateFooterDisplay();
+      document.getElementById("usdtRateText").innerText = `1$ = ${exchangeRate} ₪`;
+    }
+
+    async function bootApp(){
+      setLoading(true);
+      try{
+        history.replaceState({ view: 'storeView' }, "");
+        setSanitizedCart();
+        await loadAuthState();
+        await loadFromFirebase();
+        updateCartUI();
+        updateFooterDisplay();
+        updateActionButtonState();
+      }catch(e){
+        console.error(e);
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    window.addEventListener("load", bootApp);
+  </script>
+</body>
+</html>
